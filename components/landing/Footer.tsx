@@ -1,0 +1,23 @@
+import Link from "next/link";
+import type { LandingContent } from "@/content/landing";
+
+export function Footer({ footer }: { footer: LandingContent["footer"] }) {
+  return (
+    <footer className="border-t border-[var(--border)] px-4 py-8 sm:px-6">
+      <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-4 sm:flex-row">
+        <p className="text-sm text-[var(--muted)]">{footer.copy}</p>
+        <nav className="flex gap-6">
+          {footer.links.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+      </div>
+    </footer>
+  );
+}
