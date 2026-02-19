@@ -21,7 +21,7 @@ export const landingContent = {
     headline: "You built the app. We'll find the holes.",
     subline:
       "One audit, one payment, plain English — no security knowledge required. Get a detailed vulnerability report in minutes, not weeks.",
-    primaryCta: "Run free scan",
+    primaryCta: "Analyze",
     primaryCtaHref: "#cta",
     secondaryCta: "See sample report",
     secondaryCtaHref: "#how-it-works",
@@ -82,8 +82,7 @@ export const landingContent = {
 
   testimonials: [
     {
-      quote:
-        "I built this with AI/Cursor and have no idea if it's secure.",
+      quote: "I built this with AI/Cursor and have no idea if it's secure.",
       author: "Solo founder",
       role: "AI app builder",
     },
@@ -98,24 +97,83 @@ export const landingContent = {
       role: "SaaS",
     },
     {
-      quote:
-        "Even if I got a security report, I wouldn't understand it.",
+      quote: "Even if I got a security report, I wouldn't understand it.",
       author: "Vibe coder",
       role: "Ships with AI tools",
     },
     {
-      quote:
-        "I just shipped my app and someone told me I should get it pen-tested — what does that even mean?",
+      quote: "I just shipped my app and someone told me I should get it pen-tested — what does that even mean?",
       author: "Builder",
       role: "First-time shipper",
     },
     {
-      quote:
-        "I launched a SaaS product and need to tell enterprise customers I've been pen-tested.",
+      quote: "I launched a SaaS product and need to tell enterprise customers I've been pen-tested.",
       author: "CTO",
       role: "B2B SaaS",
     },
   ],
+
+  pricing: {
+    title: "Get your app to the next level",
+    subline: "Everything you'll get in a deep audit",
+    plans: [
+      {
+        name: "Quick Scan",
+        price: "Free",
+        period: "always",
+        description: "A fast, passive check to see what's broken before you go deeper.",
+        popular: false,
+        features: [
+          "Passive, read-only scan",
+          "Score + issue count by severity",
+          "1 low-severity finding unlocked",
+          "90-day report retention",
+        ],
+        cta: "Run Quick Scan",
+        ctaHref: "#cta",
+      },
+      {
+        name: "Deep Audit",
+        price: "$29",
+        period: "One time",
+        description: "Full active testing. Prove your security and close deals.",
+        popular: true,
+        features: [
+          "Full active exploit-testing",
+          "38+ checks across OWASP Top 10",
+          "Plain-English remediation steps",
+          "PDF report export",
+          "Shareable report link",
+          "Permanent report archive",
+        ],
+        cta: "Get Full Audit",
+        ctaHref: "#cta",
+      }
+    ]
+  },
+
+  faq: {
+    title: "Everything you need to understand",
+    subline: "Get answers to the most common questions about our security platform",
+    questions: [
+      {
+        q: "What exactly does the Security Audit do?",
+        a: "We actively test your website or API for 38+ vulnerabilities, covering the OWASP Top 10, infrastructure, headers, and more. Our AI then interprets the results into a plain-English report with exact fixes."
+      },
+      {
+        q: "How do I fix the issues you find?",
+        a: "Every issue comes with a clear explanation and step-by-step remediation instructions written for developers and founders, not just security experts."
+      },
+      {
+        q: "Do I need to verify my domain?",
+        a: "For the Free Quick Scan (passive), no verification is needed. For the $29 Deep Audit (active exploit testing), you must verify ownership via a DNS record, file upload, or meta tag."
+      },
+      {
+        q: "Is it a monthly subscription?",
+        a: "No. The Deep Audit is a one-time $29 payment per report. You only pay when you need an audit."
+      }
+    ]
+  },
 
   whyUs: {
     title: "You keep shipping. We keep securing.",

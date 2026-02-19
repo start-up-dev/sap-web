@@ -7,17 +7,17 @@ export function Partners({
   partners: LandingContent["partners"];
 }) {
   return (
-    <section className="border-t border-[var(--border)] bg-[var(--card)] px-4 py-16 sm:px-6 sm:py-24">
-      <div className="mx-auto max-w-2xl text-center">
-        <h2 className="text-2xl font-bold tracking-tight text-[var(--foreground)] sm:text-3xl">
+    <section className="border-b border-[var(--border)] bg-[#050505] px-4 py-20 sm:px-6 sm:py-32">
+      <div className="mx-auto max-w-4xl text-center">
+        <h2 className="text-4xl font-extrabold tracking-tighter text-[var(--foreground)] sm:text-5xl">
           {partners.title}
         </h2>
-        <p className="mt-3 text-[var(--muted-foreground)]">
+        <p className="mt-6 text-xl text-[var(--muted)]">
           {partners.description}
         </p>
         <Link
           href={partners.ctaHref}
-          className="mt-6 inline-flex h-12 items-center justify-center rounded-full bg-[var(--accent)] px-6 text-base font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-90"
+          className="mt-10 inline-flex h-14 items-center justify-center rounded-full bg-[#1a1a1a] px-8 text-lg font-bold text-[var(--foreground)] transition-colors hover:bg-[#222]"
         >
           {partners.cta}
         </Link>
