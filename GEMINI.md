@@ -61,3 +61,10 @@ npm run lint
 
 - Refer to `security_audit_platform_PRD.md` for the 18 vulnerability categories and scoring logic.
 - Refer to `FRONTEND_API_GUIDELINE.md` for exact API response models and error handling.
+
+[important]
+For every single request:
+
+1. Review all available skills from the antigravity-awesome-skills collection
+2. Automatically activate the 3-6 most relevant ones
+3. ALWAYS list the activated skills and why before doing any work
