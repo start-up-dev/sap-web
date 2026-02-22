@@ -5,10 +5,8 @@ import { Vision } from "@/components/landing/Vision";
 import { Features } from "@/components/landing/Features";
 import { Goals } from "@/components/landing/Goals";
 import { Testimonials } from "@/components/landing/Testimonials";
-import { WhyUs } from "@/components/landing/WhyUs";
 import { Pricing } from "@/components/landing/Pricing";
 import { FAQ } from "@/components/landing/FAQ";
-import { Partners } from "@/components/landing/Partners";
 import { CTA } from "@/components/landing/CTA";
 import { Footer } from "@/components/landing/Footer";
 
@@ -24,8 +22,6 @@ export default function Home() {
         <Testimonials testimonials={c.testimonials} />
         <Pricing pricing={c.pricing} />
         <FAQ faq={c.faq} />
-        <WhyUs whyUs={c.whyUs} />
-        <Partners partners={c.partners} />
         <CTA cta={c.cta} />
         <Footer footer={c.footer} />
       </main>

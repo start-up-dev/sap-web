@@ -5,53 +5,53 @@
 
 export const landingContent = {
   nav: {
-    logo: "Security Audit",
+    logo: "ShipSafe",
     links: [
       { label: "How it works", href: "#how-it-works" },
       { label: "Features", href: "#features" },
-      { label: "Pricing", href: "#cta" },
+      { label: "Pricing", href: "#pricing" },
       { label: "Reviews", href: "#reviews" },
     ],
     cta: "Get started",
-    ctaHref: "#cta",
+    ctaHref: "#pricing",
   },
 
   hero: {
-    badge: "AI-Powered Security Audits",
+    badge: "ShipSafe — Prove your security. Close enterprise deals.",
     headline: "You built the app. We'll find the holes.",
     subline:
-      "One audit, one payment, plain English — no security knowledge required. Get a detailed vulnerability report in minutes, not weeks.",
-    primaryCta: "Analyze",
-    primaryCtaHref: "#cta",
+      "A traditional pentest costs $10,000 and takes weeks. ShipSafe uses AI to run an active deep scan in minutes. One audit, one payment, plain English — no security knowledge required.",
+    primaryCta: "Scan Now",
+    primaryCtaHref: "#pricing",
     secondaryCta: "See sample report",
     secondaryCtaHref: "#how-it-works",
-    trustLine: "Trusted by builders and founders",
+    trustLine: "Trusted by vibe coders and founders",
   },
 
   vision: {
-    label: "Our vision",
+    label: "The Problem",
     title: "Stop losing deals over security concerns",
     body: "Growing companies hit a wall: enterprise clients and compliance auditors want proof of security before they sign. Traditional penetration testing is slow, expensive, and speaks in jargon. Basic scanners are shallow and leave critical gaps. We built an AI-powered security audit that runs in minutes, costs a fraction of a traditional pentest, and gives you a plain-English report you can act on — or share with prospects.",
   },
 
   features: [
     {
-      title: "Free quick scan",
+      title: "Free Quick Scan",
       description:
         "Submit any URL. Get a passive security check in 2–5 minutes. No credit card, no commitment. See what’s broken before you go deeper.",
     },
     {
-      title: "Deep audit when you're ready",
+      title: "Deep Audit When You're Ready",
       description:
         "Verify domain ownership once, then run a full active scan. 38+ checks across OWASP Top 10, SSL/TLS, headers, APIs, and more. One-time $29 per audit.",
     },
     {
-      title: "Plain-English reports",
+      title: "Plain-English Reports",
       description:
-        "No raw tool dumps. Our AI turns findings into clear explanations: what was found, how serious it is, and exactly how to fix it.",
+        "No raw tool dumps. Powered by Gemini 2.5 Pro, our AI turns findings into clear explanations: what was found, how serious it is, and exactly how to fix it.",
     },
     {
-      title: "Built for vibe coders & founders",
+      title: "Built For Builders",
       description:
         "No security degree required. Whether you ship with Cursor, v0, or an agency — get a credible audit and close enterprise deals without the guesswork.",
     },
@@ -82,40 +82,30 @@ export const landingContent = {
 
   testimonials: [
     {
-      quote: "I built this with AI/Cursor and have no idea if it's secure.",
-      author: "Solo founder",
-      role: "AI app builder",
+      quote: "I built this with AI/Cursor and have no idea if it's secure. ShipSafe gave me peace of mind in 5 minutes.",
+      author: "Alex",
+      role: "Vibe Coder & AI App Builder",
     },
     {
-      quote: "I don't know if my website is secure or not.",
-      author: "Business owner",
-      role: "Non-technical",
+      quote: "I launched a SaaS product and an enterprise prospect asked if we'd been pen-tested. ShipSafe saved the deal.",
+      author: "Sarah",
+      role: "SaaS Founder",
     },
     {
-      quote: "I can't afford a $10,000 security audit.",
-      author: "Startup founder",
-      role: "SaaS",
+      quote: "I don't know if my client's new website is secure or not. Now I just run ShipSafe before every launch.",
+      author: "Marcus",
+      role: "Agency Owner",
     },
     {
-      quote: "Even if I got a security report, I wouldn't understand it.",
-      author: "Vibe coder",
-      role: "Ships with AI tools",
-    },
-    {
-      quote: "I just shipped my app and someone told me I should get it pen-tested — what does that even mean?",
-      author: "Builder",
-      role: "First-time shipper",
-    },
-    {
-      quote: "I launched a SaaS product and need to tell enterprise customers I've been pen-tested.",
-      author: "CTO",
-      role: "B2B SaaS",
-    },
+      quote: "Even if I got a $10,000 security report, I wouldn't understand it. ShipSafe's plain English is exactly what I needed.",
+      author: "David",
+      role: "Solo Developer",
+    }
   ],
 
   pricing: {
     title: "Get your app to the next level",
-    subline: "Everything you'll get in a deep audit",
+    subline: "Skip the $10,000 pentest. Get a full audit in minutes.",
     plans: [
       {
         name: "Quick Scan",
@@ -130,13 +120,13 @@ export const landingContent = {
           "90-day report retention",
         ],
         cta: "Run Quick Scan",
-        ctaHref: "#cta",
+        ctaHref: "#pricing",
       },
       {
         name: "Deep Audit",
         price: "$29",
         period: "One time",
-        description: "Full active testing. Prove your security and close deals.",
+        description: "Full active exploit-testing. Prove your security and close deals.",
         popular: true,
         features: [
           "Full active exploit-testing",
@@ -147,18 +137,18 @@ export const landingContent = {
           "Permanent report archive",
         ],
         cta: "Get Full Audit",
-        ctaHref: "#cta",
+        ctaHref: "#pricing",
       }
     ]
   },
 
   faq: {
     title: "Everything you need to understand",
-    subline: "Get answers to the most common questions about our security platform",
+    subline: "Get answers to the most common questions about ShipSafe",
     questions: [
       {
-        q: "What exactly does the Security Audit do?",
-        a: "We actively test your website or API for 38+ vulnerabilities, covering the OWASP Top 10, infrastructure, headers, and more. Our AI then interprets the results into a plain-English report with exact fixes."
+        q: "What exactly does ShipSafe do?",
+        a: "We actively test your website or API for 38+ vulnerabilities, covering the OWASP Top 10, infrastructure, headers, and more using tools like ZAP, Nmap, Nikto, and Playwright. Our AI (Gemini 2.5 Pro) then interprets the results into a plain-English report with exact fixes."
       },
       {
         q: "How do I fix the issues you find?",
@@ -175,36 +165,22 @@ export const landingContent = {
     ]
   },
 
-  whyUs: {
-    title: "You keep shipping. We keep securing.",
-    body: "AI lets you build and ship faster. Security hasn’t kept up — until now. We run industry-standard checks, interpret results with AI, and give you a report you can read and act on. No weeks of waiting, no five-figure invoices, no jargon.",
+  cta: {
+    title: "Find what's broken. Fix what matters.",
+    subline: "Run a free quick scan in minutes. Upgrade to a full audit when you're ready.",
     points: [
-      "Quick scan free, deep audit $29 one-time — no subscription",
       "Reports in plain English with clear fix steps",
       "38+ checks: OWASP Top 10, SSL, headers, APIs, and more",
       "For non-technical founders, vibe coders, and AI app builders",
     ],
-  },
-
-  partners: {
-    title: "Built for teams that ship",
-    description:
-      "Solo builders, startups, and agencies use us to get audit-ready and close deals.",
-    cta: "Get in touch",
-    ctaHref: "#cta",
-  },
-
-  cta: {
-    title: "Find what's broken. Fix what matters.",
-    subline: "Run a free quick scan in minutes. Upgrade to a full audit when you're ready.",
-    primaryCta: "Run free scan",
+    primaryCta: "Run Free Scan",
     primaryCtaHref: "#",
-    secondaryCta: "See pricing",
+    secondaryCta: "See Pricing",
     secondaryCtaHref: "#pricing",
   },
 
   footer: {
-    copy: "Security Audit Platform",
+    copy: "ShipSafe",
     links: [
       { label: "Privacy", href: "/privacy" },
       { label: "Terms", href: "/terms" },

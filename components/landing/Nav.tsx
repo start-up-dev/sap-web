@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ShieldCheck } from "lucide-react";
 import type { LandingContent } from "@/content/landing";
 
 export function Nav({ nav }: { nav: LandingContent["nav"] }) {
@@ -9,7 +10,9 @@ export function Nav({ nav }: { nav: LandingContent["nav"] }) {
           href="/"
           className="text-xl font-bold tracking-tight text-[var(--foreground)] flex items-center gap-2"
         >
-          <div className="h-6 w-6 rounded-md bg-[var(--accent)]"></div>
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--accent)] to-emerald-700 shadow-[0_0_15px_rgba(16,185,129,0.5)]">
+            <ShieldCheck className="h-5 w-5 text-white" />
+          </div>
           {nav.logo}
         </Link>
         <nav className="hidden items-center gap-8 md:flex">
@@ -25,7 +28,7 @@ export function Nav({ nav }: { nav: LandingContent["nav"] }) {
         </nav>
         <Link
           href={nav.ctaHref}
-          className="rounded-full bg-[var(--accent)] px-5 py-2.5 text-sm font-bold text-[var(--accent-foreground)] transition-transform hover:scale-105"
+          className="rounded-full bg-[var(--accent)] px-5 py-2.5 text-sm font-bold text-[var(--accent-foreground)] transition-transform hover:scale-105 shadow-[0_0_15px_rgba(16,185,129,0.3)]"
         >
           {nav.cta}
         </Link>
