@@ -1,7 +1,6 @@
 import { landingContent } from "@/content/landing";
 import { Nav } from "@/components/landing/Nav";
 import { Hero } from "@/components/landing/Hero";
-import { Vision } from "@/components/landing/Vision";
 import { Features } from "@/components/landing/Features";
 import { Goals } from "@/components/landing/Goals";
 import { Testimonials } from "@/components/landing/Testimonials";

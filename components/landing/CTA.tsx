@@ -1,11 +1,30 @@
 "use client";
 
-import Link from "next/link";
 import { motion } from "framer-motion";
 import { Check } from "lucide-react";
+import { useAuth } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 import type { LandingContent } from "@/content/landing";
 
 export function CTA({ cta }: { cta: LandingContent["cta"] }) {
+  const { isSignedIn } = useAuth();
+  const router = useRouter();
+
+  const handlePrimaryClick = () => {
+    if (!isSignedIn) {
+      router.push("/sign-up?redirect_url=/dashboard");
+    } else {
+      router.push("/dashboard");
+    }
+  };
+
+  const handleSecondaryClick = () => {
+    const pricingSection = document.getElementById("pricing");
+    if (pricingSection) {
+      pricingSection.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
     <section id="cta" className="relative overflow-hidden bg-black px-4 py-24 sm:px-6 sm:py-40">
       {/* Cool Grid Background */}
@@ -58,18 +77,18 @@ export function CTA({ cta }: { cta: LandingContent["cta"] }) {
           transition={{ delay: 0.3 }}
           className="mt-12 flex flex-col items-center justify-center gap-4 sm:flex-row"
         >
-          <Link
-            href={cta.primaryCtaHref}
+          <button
+            onClick={handlePrimaryClick}
             className="inline-flex h-16 min-w-[220px] items-center justify-center rounded-xl bg-emerald-500 px-8 text-lg font-bold text-white transition-all hover:scale-105 hover:bg-emerald-400 shadow-[0_0_30px_rgba(16,185,129,0.3)]"
           >
             {cta.primaryCta}
-          </Link>
-          <Link
-            href={cta.secondaryCtaHref}
+          </button>
+          <button
+            onClick={handleSecondaryClick}
             className="inline-flex h-16 min-w-[220px] items-center justify-center rounded-xl border border-[#444] bg-[#111] px-8 text-lg font-bold text-white transition-colors hover:bg-[#222] hover:border-[#666]"
           >
             {cta.secondaryCta}
-          </Link>
+          </button>
         </motion.div>
       </div>
     </section>

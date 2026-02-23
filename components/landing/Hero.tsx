@@ -1,11 +1,31 @@
 "use client";
 
-import Link from "next/link";
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { Search, ShieldAlert } from "lucide-react";
+import { Search, ShieldAlert, Loader2 } from "lucide-react";
+import { useAuth } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
 import type { LandingContent } from "@/content/landing";
 
 export function Hero({ hero }: { hero: LandingContent["hero"] }) {
+  const { isSignedIn } = useAuth();
+  const router = useRouter();
+  const [url, setUrl] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleScan = () => {
+    if (!url) return;
+    setIsLoading(true);
+    
+    if (!isSignedIn) {
+      localStorage.setItem("pending_scan_url", url);
+      router.push(`/sign-up?redirect_url=/dashboard`);
+    } else {
+      router.push(`/dashboard?url=${encodeURIComponent(url)}`);
+    }
+  };
+
   return (
     <section className="relative overflow-hidden bg-black px-4 py-20 sm:px-6 sm:py-32">
       {/* Background gradients */}
@@ -67,12 +87,19 @@ export function Hero({ hero }: { hero: LandingContent["hero"] }) {
                 <Search className="absolute left-4 h-5 w-5 text-[#666]" />
                 <input
                   type="text"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
                   placeholder="https://your-app.com"
                   className="h-14 w-full bg-transparent pl-12 pr-4 text-lg text-white placeholder:text-[#666] focus:outline-none"
+                  onKeyDown={(e) => e.key === "Enter" && handleScan()}
                 />
               </div>
-              <button className="mt-2 sm:mt-0 h-14 w-full sm:w-auto rounded-xl bg-[var(--accent)] px-8 text-lg font-bold text-white shadow-[0_0_20px_rgba(16,185,129,0.4)] transition-all hover:bg-emerald-400 hover:scale-[1.02]">
-                {hero.primaryCta}
+              <button 
+                onClick={handleScan}
+                disabled={isLoading || !url}
+                className="mt-2 sm:mt-0 h-14 w-full sm:w-auto rounded-xl bg-[var(--accent)] px-8 text-lg font-bold text-white shadow-[0_0_20px_rgba(16,185,129,0.4)] transition-all hover:bg-emerald-400 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : hero.primaryCta}
               </button>
             </div>
           </div>
@@ -87,12 +114,14 @@ export function Hero({ hero }: { hero: LandingContent["hero"] }) {
         >
           <div className="flex -space-x-3">
             {[11, 22, 33, 44, 55].map((img, i) => (
-              <img 
-                key={i}
-                src={`https://i.pravatar.cc/100?img=${img}`} 
-                alt="Avatar" 
-                className="h-10 w-10 rounded-full border-2 border-black" 
-              />
+              <div key={i} className="relative h-10 w-10 overflow-hidden rounded-full border-2 border-black">
+                <Image 
+                  src={`https://i.pravatar.cc/100?img=${img}`} 
+                  alt="Avatar" 
+                  fill
+                  className="object-cover" 
+                />
+              </div>
             ))}
           </div>
           <p className="text-[15px] font-medium text-[#8a8a8a]">

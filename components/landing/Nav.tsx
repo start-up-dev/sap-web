@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ShieldCheck } from "lucide-react";
+import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import type { LandingContent } from "@/content/landing";
 
 export function Nav({ nav }: { nav: LandingContent["nav"] }) {
@@ -26,12 +27,31 @@ export function Nav({ nav }: { nav: LandingContent["nav"] }) {
             </Link>
           ))}
         </nav>
-        <Link
-          href={nav.ctaHref}
-          className="rounded-full bg-[var(--accent)] px-5 py-2.5 text-sm font-bold text-[var(--accent-foreground)] transition-transform hover:scale-105 shadow-[0_0_15px_rgba(16,185,129,0.3)]"
-        >
-          {nav.cta}
-        </Link>
+        <div className="flex items-center gap-4">
+          <SignedOut>
+            <Link
+              href="/sign-in"
+              className="text-sm font-medium text-[var(--muted)] hover:text-[var(--foreground)] mr-2"
+            >
+              Log in
+            </Link>
+            <Link
+              href="/sign-up"
+              className="rounded-full bg-[var(--accent)] px-5 py-2.5 text-sm font-bold text-[var(--accent-foreground)] transition-transform hover:scale-105 shadow-[0_0_15px_rgba(16,185,129,0.3)]"
+            >
+              {nav.cta}
+            </Link>
+          </SignedOut>
+          <SignedIn>
+            <Link
+              href="/dashboard"
+              className="text-sm font-medium text-[var(--muted)] hover:text-[var(--foreground)] mr-2"
+            >
+              Dashboard
+            </Link>
+            <UserButton afterSignOutUrl="/" />
+          </SignedIn>
+        </div>
       </div>
     </header>
   );

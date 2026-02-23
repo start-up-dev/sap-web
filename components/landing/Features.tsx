@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { CheckCircle2, Shield, Search, Lock, Activity, FileText } from "lucide-react";
+import { CheckCircle2, Shield, Search, Activity, FileText } from "lucide-react";
 import type { LandingContent } from "@/content/landing";
 
 export function Features({
@@ -163,7 +163,7 @@ export function Features({
                 {features[0].title}
               </h3>
               <p className="text-sm leading-relaxed text-[#777]">
-                Passive check in 2–5 minutes. Find out what's exposed.
+                Passive check in 2–5 minutes. Find out what&apos;s exposed.
               </p>
             </div>
           </motion.div>

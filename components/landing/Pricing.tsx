@@ -2,9 +2,22 @@
 
 import { motion } from "framer-motion";
 import { CheckCircle2, XCircle } from "lucide-react";
+import { useAuth } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 import type { LandingContent } from "@/content/landing";
 
 export function Pricing({ pricing }: { pricing: LandingContent["pricing"] }) {
+  const { isSignedIn } = useAuth();
+  const router = useRouter();
+
+  const handlePlanClick = () => {
+    if (!isSignedIn) {
+      router.push("/sign-up?redirect_url=/dashboard");
+    } else {
+      router.push("/dashboard");
+    }
+  };
+
   return (
     <section id="pricing" className="relative overflow-hidden border-b border-[#222] bg-[#050505] px-4 py-20 sm:px-6 sm:py-32">
       <div className="mx-auto max-w-6xl relative z-10">
@@ -104,6 +117,7 @@ export function Pricing({ pricing }: { pricing: LandingContent["pricing"] }) {
               </ul>
               
               <button
+                onClick={handlePlanClick}
                 className={`mt-auto h-14 w-full rounded-xl text-lg font-bold transition-all ${
                   plan.popular
                     ? "bg-emerald-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:bg-emerald-400 hover:scale-[1.02]"
