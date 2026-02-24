@@ -11,9 +11,17 @@ interface UpgradeButtonProps {
   scanId: number;
   className?: string;
   children?: React.ReactNode;
+  size?: "default" | "sm" | "lg" | "icon";
+  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
 }
 
-export function UpgradeButton({ scanId, className, children }: UpgradeButtonProps) {
+export function UpgradeButton({ 
+  scanId, 
+  className, 
+  children,
+  size = "default",
+  variant = "default"
+}: UpgradeButtonProps) {
   const { getToken } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -39,9 +47,10 @@ export function UpgradeButton({ scanId, className, children }: UpgradeButtonProp
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      // Redirect to Stripe Checkout
+      // Redirect to Stripe Checkout in a new tab
       if (response.data.checkout_url) {
-        window.location.href = response.data.checkout_url;
+        window.open(response.data.checkout_url, "_blank");
+        toast.success("Checkout opened in a new tab.");
       } else {
         throw new Error("Missing checkout URL");
       }
@@ -65,6 +74,8 @@ export function UpgradeButton({ scanId, className, children }: UpgradeButtonProp
       onClick={handleUpgrade}
       disabled={isLoading}
       className={className}
+      size={size}
+      variant={variant}
     >
       {isLoading ? (
         <Loader2 className="h-4 w-4 animate-spin mr-2" />

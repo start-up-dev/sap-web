@@ -46,7 +46,7 @@ export default function ScanProgressPage({ params }: PageProps) {
 
         if (data.status === "completed") {
           toast.success("Scan completed! Redirecting to report...");
-          setTimeout(() => router.push(`/reports/${id}`), 2000);
+          router.push(`/reports/${id}`);
           if (intervalRef.current) clearInterval(intervalRef.current);
         } else if (data.status === "failed") {
           setError("Scan failed. Please check the target URL and try again.");

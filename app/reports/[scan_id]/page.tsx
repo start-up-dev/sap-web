@@ -13,7 +13,8 @@ import {
 import { useAuth } from "@clerk/nextjs";
 import { useRouter, useSearchParams } from "next/navigation";
 import { api } from "@/lib/api/client";
-import { ReportResponse, Severity } from "@/lib/api/types";
+import { ReportResponse, Severity, ReportDownloadResponse } from "@/lib/api/types";
+import { AxiosError } from "axios";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
@@ -38,18 +39,26 @@ function ReportContent({ params }: PageProps) {
   
   const [report, setReport] = useState<ReportResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<{ status?: number; message: string } | null>(null);
 
   const fetchReport = useCallback(async () => {
     try {
-      setIsLoading(true);
+      setError(null);
       const token = await getToken();
       const response = await api.get(`/v1/reports/${scan_id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setReport(response.data);
-    } catch (error) {
-      console.error("Error fetching report:", error);
-      toast.error("Failed to load audit report.");
+    } catch (err: unknown) {
+      console.error("Error fetching report:", err);
+      const axiosError = err as AxiosError;
+      const status = axiosError.response?.status;
+      const message = status === 403 
+        ? "Access Denied: You do not have permission to view this report."
+        : "Failed to load audit report.";
+      
+      setError({ status, message });
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }
@@ -72,9 +81,24 @@ function ReportContent({ params }: PageProps) {
     }
   };
 
-  const handleDownloadPDF = () => {
-    toast.info("Preparing PDF report...");
-    window.print();
+  const handleDownloadPDF = async () => {
+    try {
+      toast.info("Preparing PDF report...");
+      const token = await getToken();
+      const response = await api.get<ReportDownloadResponse>(`/v1/reports/${scan_id}/download`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      
+      if (response.data.download_url) {
+        window.open(response.data.download_url, "_blank");
+        toast.success("Download started!");
+      } else {
+        throw new Error("Download URL not found in response");
+      }
+    } catch (error) {
+      console.error("Error downloading PDF:", error);
+      toast.error("Failed to generate download link. Please try again later.");
+    }
   };
 
   useEffect(() => {
@@ -105,9 +129,19 @@ function ReportContent({ params }: PageProps) {
     return (
       <div className="min-h-screen bg-black text-white">
         <main className="flex h-[80vh] flex-col items-center justify-center p-4 text-center">
-          <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
-          <h1 className="text-2xl font-bold mb-2">Report Not Found</h1>
-          <p className="text-[#999] mb-8">We couldn&apos;t find the report you&apos;re looking for.</p>
+          {error?.status === 403 ? (
+            <>
+              <Lock className="h-12 w-12 text-yellow-500 mb-4" />
+              <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
+              <p className="text-[#999] mb-8 max-w-md">{error.message}</p>
+            </>
+          ) : (
+            <>
+              <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
+              <h1 className="text-2xl font-bold mb-2">Report Not Found</h1>
+              <p className="text-[#999] mb-8">We couldn&apos;t find the report you&apos;re looking for.</p>
+            </>
+          )}
           <Button onClick={() => router.push("/dashboard")} className="bg-[#222]">
             Back to Dashboard
           </Button>

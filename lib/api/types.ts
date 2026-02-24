@@ -101,3 +101,7 @@ export interface CheckoutRequest {
 export interface CheckoutResponse {
   checkout_url: string;
 }
+
+export interface ReportDownloadResponse {
+  download_url: string;
+}

@@ -30,6 +30,8 @@ import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import Link from "next/link";
 import { formatDate, formatDuration } from "@/lib/utils";
+import { UpgradeButton } from "@/components/payment/UpgradeButton";
+import { AxiosError } from "axios";
 
 function DashboardContent() {
   const { getToken } = useAuth();
@@ -95,20 +97,39 @@ function DashboardContent() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
+      const scanId = response.data.id;
+
+      // If it's a deep scan, we need to initiate payment immediately
+      if (isDeepScan) {
+        toast.info("Initiating secure checkout...");
+        const checkoutRes = await api.post("/v1/payments/checkout", 
+          { scan_id: scanId },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        
+        if (checkoutRes.data.checkout_url) {
+          window.open(checkoutRes.data.checkout_url, "_blank");
+          toast.success("Checkout opened in a new tab.");
+          router.push(`/scans/${scanId}`); // Still navigate to progress page in background
+          return;
+        }
+      }
+
       toast.success("Scan initiated successfully.");
-      router.push(`/scans/${response.data.id}`);
+      router.push(`/scans/${scanId}`);
     } catch (error: unknown) {
       console.error("Error starting scan:", error);
+      const axiosError = error as AxiosError<{ detail?: string | Array<{ loc: string[]; msg: string }> }>;
+      
+      // Handle 403 Forbidden (Domain not verified)
+      if (axiosError.response?.status === 403) {
+        toast.error("Domain verification required for Deep Audits.");
+        router.push("/domains");
+        return;
+      }
+
       let errorMessage = "Failed to start scan.";
       
-      const axiosError = error as { 
-        response?: { 
-          data?: { 
-            detail?: string | Array<{ loc: string[]; msg: string }> 
-          } 
-        } 
-      };
-
       const detail = axiosError.response?.data?.detail;
       
       if (Array.isArray(detail)) {
@@ -249,7 +270,16 @@ function DashboardContent() {
                     {formatDate(scan.started_at || scan.created_at)}
                   </TableCell>
                   <TableCell className="text-right">
-                    {scan.status === "completed" ? (
+                    {scan.is_deep_scan && !scan.is_paid ? (
+                      <UpgradeButton 
+                        scanId={scan.id} 
+                        size="sm" 
+                        variant="outline" 
+                        className="text-emerald-500 border-emerald-500/30 hover:bg-emerald-500/10"
+                      >
+                        Complete Payment
+                      </UpgradeButton>
+                    ) : scan.status === "completed" ? (
                       <Link href={`/reports/${scan.id}`}>
                         <Button size="sm" variant="ghost" className="text-emerald-500 hover:text-emerald-400 hover:bg-emerald-500/10 gap-1">
                           View Report <ExternalLink className="h-3 w-3" />
