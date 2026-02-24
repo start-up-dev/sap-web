@@ -39,6 +39,11 @@ export default function RootLayout({
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
           {children}
+
+          <script
+            async
+            src="https://scripts.simpleanalyticscdn.com/latest.js"
+          ></script>
         </body>
       </html>
     </ClerkProvider>
