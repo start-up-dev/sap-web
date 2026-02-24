@@ -4,8 +4,6 @@ import { useEffect, Suspense } from "react";
 import { CheckCircle2, ArrowRight, Loader2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Nav } from "@/components/landing/Nav";
-import { landingContent } from "@/content/landing";
 
 function SuccessContent() {
   const router = useRouter();
@@ -62,7 +60,6 @@ function SuccessContent() {
 export default function PaymentSuccessPage() {
   return (
     <div className="min-h-screen bg-black text-white">
-      <Nav nav={landingContent.nav} />
       <Suspense fallback={
         <div className="flex h-[80vh] items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />

@@ -6,14 +6,18 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatDate(dateString: string | null | undefined): string {
-  if (!dateString) return "N/A";
+  if (!dateString || dateString === "N/A") return "N/A";
   const date = new Date(dateString);
-  if (isNaN(date.getTime())) return "Invalid Date";
-  return date.toLocaleDateString();
+  if (isNaN(date.getTime())) return "N/A";
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  });
 }
 
 export function formatDuration(start: string | null | undefined, end: string | null | undefined): string {
-  if (!start || !end) return "--";
+  if (!start || !end || start === "N/A" || end === "N/A") return "--";
   
   const startTime = new Date(start).getTime();
   const endTime = new Date(end).getTime();
@@ -21,7 +25,7 @@ export function formatDuration(start: string | null | undefined, end: string | n
   if (isNaN(startTime) || isNaN(endTime)) return "--";
   
   const diffMs = endTime - startTime;
-  if (diffMs < 0) return "0s";
+  if (diffMs <= 0) return "few seconds";
   
   const diffSec = Math.floor(diffMs / 1000);
   const minutes = Math.floor(diffSec / 60);

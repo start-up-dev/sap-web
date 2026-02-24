@@ -28,8 +28,6 @@ import {
 } from "@/components/ui/table";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
-import { Nav } from "@/components/landing/Nav";
-import { landingContent } from "@/content/landing";
 import Link from "next/link";
 import { formatDate, formatDuration } from "@/lib/utils";
 
@@ -280,7 +278,6 @@ function DashboardContent() {
 export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-black text-white">
-      <Nav nav={landingContent.nav} />
       <Suspense fallback={
         <div className="flex h-[80vh] items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />

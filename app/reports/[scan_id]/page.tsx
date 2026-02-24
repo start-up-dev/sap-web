@@ -18,8 +18,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
-import { Nav } from "@/components/landing/Nav";
-import { landingContent } from "@/content/landing";
 import { SecurityScoreRing } from "@/components/reports/SecurityScoreRing";
 import { FindingCard } from "@/components/reports/FindingCard";
 import Link from "next/link";
@@ -57,6 +55,28 @@ function ReportContent({ params }: PageProps) {
     }
   }, [scan_id, getToken]);
 
+  const handleShare = async () => {
+    const url = window.location.href;
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: `Security Audit Report - ${report?.target_url}`,
+          url: url
+        });
+      } else {
+        await navigator.clipboard.writeText(url);
+        toast.success("Link copied to clipboard!");
+      }
+    } catch (err) {
+      console.error("Error sharing:", err);
+    }
+  };
+
+  const handleDownloadPDF = () => {
+    toast.info("Preparing PDF report...");
+    window.print();
+  };
+
   useEffect(() => {
     fetchReport();
   }, [fetchReport]);
@@ -73,7 +93,6 @@ function ReportContent({ params }: PageProps) {
   if (isLoading && !report) {
     return (
       <div className="min-h-screen bg-black text-white">
-        <Nav nav={landingContent.nav} />
         <main className="flex h-[80vh] flex-col items-center justify-center gap-4">
           <Loader2 className="h-12 w-12 animate-spin text-emerald-500" />
           <p className="text-[#666] font-medium">Generating your security report...</p>
@@ -85,7 +104,6 @@ function ReportContent({ params }: PageProps) {
   if (!report) {
     return (
       <div className="min-h-screen bg-black text-white">
-        <Nav nav={landingContent.nav} />
         <main className="flex h-[80vh] flex-col items-center justify-center p-4 text-center">
           <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
           <h1 className="text-2xl font-bold mb-2">Report Not Found</h1>
@@ -102,10 +120,8 @@ function ReportContent({ params }: PageProps) {
 
   return (
     <div className="min-h-screen bg-black text-white pb-20">
-      <Nav nav={landingContent.nav} />
-      
       {/* Header Bar */}
-      <div className="border-b border-[#222] bg-[#050505] py-6 sticky top-16 z-40 backdrop-blur-md bg-opacity-80">
+      <div className="border-b border-[#222] bg-[#050505] py-6 sticky top-0 z-40 backdrop-blur-md bg-opacity-80 print:hidden">
         <div className="mx-auto max-w-6xl px-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <div className="flex items-center gap-4">
             <Link href="/dashboard">
@@ -115,9 +131,16 @@ function ReportContent({ params }: PageProps) {
             </Link>
             <div className="h-4 w-[1px] bg-[#222]" />
             <div>
-              <h1 className="text-xl font-bold flex items-center gap-2">
-                {report.target_url}
-                <ExternalLink className="h-3 w-3 text-[#444]" />
+              <h1 className="text-xl font-bold">
+                <a 
+                  href={report.target_url.startsWith('http') ? report.target_url : `https://${report.target_url}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 hover:text-emerald-500 transition-colors"
+                >
+                  {report.target_url}
+                  <ExternalLink className="h-3 w-3 text-[#444]" />
+                </a>
               </h1>
               <div className="flex items-center gap-3 text-xs text-[#666]">
                 <span>Audit generated on {formatDate(report.generated_at)}</span>
@@ -130,7 +153,12 @@ function ReportContent({ params }: PageProps) {
           </div>
           
           <div className="flex items-center gap-3">
-            <Button variant="outline" size="sm" className="border-[#333] hover:bg-[#111]">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="border-[#333] hover:bg-[#111]"
+              onClick={handleShare}
+            >
               <Share2 className="mr-2 h-4 w-4" /> Share
             </Button>
             {isFreeScan ? (
@@ -141,6 +169,7 @@ function ReportContent({ params }: PageProps) {
               <Button 
                 size="sm" 
                 className="bg-white text-black hover:bg-[#ddd]"
+                onClick={handleDownloadPDF}
               >
                 <Download className="mr-2 h-4 w-4" /> Download PDF
               </Button>

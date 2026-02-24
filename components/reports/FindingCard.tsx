@@ -9,8 +9,7 @@ import {
   AlertTriangle, 
   Info,
   Bug,
-  Lightbulb,
-  Clock
+  Lightbulb
 } from "lucide-react";
 import { Finding, Severity } from "@/lib/api/types";
 import { Badge } from "@/components/ui/badge";
@@ -149,21 +148,13 @@ export function FindingCard({ finding, scanId }: FindingCardProps) {
               )}
 
               {/* Remediation */}
-              <div className="grid gap-6 md:grid-cols-2 bg-[#111]/30 rounded-xl p-6 border border-[#222]">
+              <div className="bg-[#111]/30 rounded-xl p-6 border border-[#222]">
                 <div className="space-y-3">
                   <h4 className="text-sm font-bold uppercase tracking-widest text-emerald-500 flex items-center gap-2">
                     <Lightbulb className="h-4 w-4" /> How to Fix
                   </h4>
                   <p className="text-white leading-relaxed">
                     {finding.remediation}
-                  </p>
-                </div>
-                <div className="space-y-3">
-                  <h4 className="text-sm font-bold uppercase tracking-widest text-[#666] flex items-center gap-2">
-                    <Clock className="h-4 w-4" /> Estimated Fix Time
-                  </h4>
-                  <p className="text-white font-bold text-lg">
-                    {finding.estimated_fix_time || "1-2 hours"}
                   </p>
                 </div>
               </div>

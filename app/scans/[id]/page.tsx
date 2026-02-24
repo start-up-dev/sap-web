@@ -19,8 +19,6 @@ import { ScanStatusResponse } from "@/lib/api/types";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
-import { Nav } from "@/components/landing/Nav";
-import { landingContent } from "@/content/landing";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -80,7 +78,6 @@ export default function ScanProgressPage({ params }: PageProps) {
   if (error) {
     return (
       <div className="min-h-screen bg-black text-white">
-        <Nav nav={landingContent.nav} />
         <main className="flex h-[80vh] flex-col items-center justify-center p-4 text-center">
           <div className="h-16 w-16 rounded-full bg-red-500/10 flex items-center justify-center mb-6">
             <AlertCircle className="h-8 w-8 text-red-500" />
@@ -97,8 +94,6 @@ export default function ScanProgressPage({ params }: PageProps) {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <Nav nav={landingContent.nav} />
-      
       <main className="mx-auto max-w-3xl px-4 py-20 sm:px-6">
         <div className="text-center mb-12">
           <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-500 mb-6 animate-pulse">

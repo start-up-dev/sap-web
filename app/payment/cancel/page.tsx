@@ -3,16 +3,12 @@
 import { XCircle, ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Nav } from "@/components/landing/Nav";
-import { landingContent } from "@/content/landing";
 
 export default function PaymentCancelPage() {
   const router = useRouter();
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <Nav nav={landingContent.nav} />
-      
       <main className="flex h-[80vh] flex-col items-center justify-center p-4 text-center">
         <div className="h-20 w-20 rounded-full bg-red-500/10 flex items-center justify-center mb-8">
           <XCircle className="h-10 w-10 text-red-500" />

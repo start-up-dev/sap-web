@@ -27,8 +27,6 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
-import { Nav } from "@/components/landing/Nav";
-import { landingContent } from "@/content/landing";
 import { VerificationDialog } from "@/components/domains/VerificationDialog";
 
 export default function DomainsPage() {
@@ -122,8 +120,6 @@ export default function DomainsPage() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <Nav nav={landingContent.nav} />
-      
       <main className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>

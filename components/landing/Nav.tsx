@@ -5,13 +5,13 @@ import type { LandingContent } from "@/content/landing";
 
 export function Nav({ nav }: { nav: LandingContent["nav"] }) {
   return (
-    <header className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--background)]/80 backdrop-blur-md">
+    <header className="sticky top-0 z-50 border-b border-white/5 bg-black/60 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
         <Link
           href="/"
           className="text-xl font-bold tracking-tight text-[var(--foreground)] flex items-center gap-2"
         >
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--accent)] to-emerald-700 shadow-[0_0_15px_rgba(16,185,129,0.5)]">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-linear-to-br from-[var(--accent)] to-emerald-700 shadow-[0_0_15px_rgba(16,185,129,0.5)]">
             <ShieldCheck className="h-5 w-5 text-white" />
           </div>
           {nav.logo}
@@ -21,7 +21,7 @@ export function Nav({ nav }: { nav: LandingContent["nav"] }) {
             <Link
               key={link.href}
               href={link.href}
-              className="text-sm font-medium text-[var(--muted)] transition-colors hover:text-[var(--foreground)]"
+              className="text-sm font-medium text-foreground/70 transition-colors hover:text-foreground"
             >
               {link.label}
             </Link>
@@ -31,13 +31,13 @@ export function Nav({ nav }: { nav: LandingContent["nav"] }) {
           <SignedOut>
             <Link
               href="/sign-in"
-              className="text-sm font-medium text-[var(--muted)] hover:text-[var(--foreground)] mr-2"
+              className="text-sm font-medium text-foreground/70 hover:text-foreground mr-2"
             >
               Log in
             </Link>
             <Link
               href="/sign-up"
-              className="rounded-full bg-[var(--accent)] px-5 py-2.5 text-sm font-bold text-[var(--accent-foreground)] transition-transform hover:scale-105 shadow-[0_0_15px_rgba(16,185,129,0.3)]"
+              className="rounded-full bg-accent px-5 py-2.5 text-sm font-bold text-accent-foreground transition-transform hover:scale-105 shadow-[0_0_15px_rgba(16,185,129,0.3)]"
             >
               {nav.cta}
             </Link>
@@ -45,7 +45,7 @@ export function Nav({ nav }: { nav: LandingContent["nav"] }) {
           <SignedIn>
             <Link
               href="/dashboard"
-              className="text-sm font-medium text-[var(--muted)] hover:text-[var(--foreground)] mr-2"
+              className="text-sm font-medium text-foreground/70 hover:text-foreground mr-2"
             >
               Dashboard
             </Link>
