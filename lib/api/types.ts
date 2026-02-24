@@ -76,12 +76,16 @@ export interface Finding {
   technical_proof?: string;
   remediation?: string;
   estimated_fix_time?: string;
+  is_validated?: boolean;
+  exploit_steps?: string;
+  evidence?: string;
 }
 
 export interface ReportResponse {
   scan_id: number;
   target_url: string;
   score: number;
+  is_deep_scan: boolean;
   stats: Record<Severity, number>;
   findings: Finding[];
   generated_at: string;

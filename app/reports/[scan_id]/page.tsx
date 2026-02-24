@@ -247,7 +247,12 @@ function ReportContent({ params }: PageProps) {
 
           <div className="grid gap-4">
             {report.findings.map((finding) => (
-              <FindingCard key={finding.id} finding={finding} scanId={Number(scan_id)} />
+              <FindingCard 
+                key={finding.id} 
+                finding={finding} 
+                scanId={Number(scan_id)} 
+                isDeepScan={report.is_deep_scan}
+              />
             ))}
           </div>
         </div>

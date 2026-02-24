@@ -9,7 +9,9 @@ import {
   AlertTriangle, 
   Info,
   Bug,
-  Lightbulb
+  Lightbulb,
+  Terminal,
+  CheckCircle2
 } from "lucide-react";
 import { Finding, Severity } from "@/lib/api/types";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +22,7 @@ import { UpgradeButton } from "@/components/payment/UpgradeButton";
 interface FindingCardProps {
   finding: Finding;
   scanId: number;
+  isDeepScan?: boolean;
 }
 
 const severityConfig: Record<Severity, { color: string, icon: React.ElementType, label: string }> = {
@@ -30,7 +33,7 @@ const severityConfig: Record<Severity, { color: string, icon: React.ElementType,
   informational: { color: "text-[#666]", icon: Info, label: "Info" },
 };
 
-export function FindingCard({ finding, scanId }: FindingCardProps) {
+export function FindingCard({ finding, scanId, isDeepScan }: FindingCardProps) {
   const [isOpen, setIsOpen] = useState(false);
   const config = severityConfig[finding.severity];
   const Icon = config.icon;
@@ -93,6 +96,11 @@ export function FindingCard({ finding, scanId }: FindingCardProps) {
               <Badge variant="outline" className={`${config.color} border-current/20 bg-current/5`}>
                 {config.label}
               </Badge>
+              {finding.is_validated && (
+                <Badge className="bg-red-500/10 text-red-500 border-red-500/20 animate-pulse font-black tracking-tighter">
+                  BREACH VERIFIED
+                </Badge>
+              )}
               <span className="text-xs text-[#444] font-mono">ID: {finding.id}</span>
             </div>
             <h3 className="text-lg font-bold text-white">{finding.title}</h3>
@@ -115,6 +123,61 @@ export function FindingCard({ finding, scanId }: FindingCardProps) {
             transition={{ duration: 0.3, ease: "easeInOut" }}
           >
             <div className="px-6 pb-6 border-t border-[#222] pt-6 space-y-8">
+              {/* PoC / Active Exploitation Section */}
+              {isDeepScan ? (
+                (finding.exploit_steps || finding.evidence) && (
+                  <div className="bg-red-500/5 border border-red-500/10 rounded-xl p-6 space-y-6">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-sm font-black uppercase tracking-widest text-red-500 flex items-center gap-2">
+                        <CheckCircle2 className="h-4 w-4" /> Active Exploitation (PoC)
+                      </h4>
+                      {finding.is_validated && (
+                        <span className="text-[10px] bg-red-500 text-white px-2 py-0.5 rounded font-bold">VERIFIED HACKABLE</span>
+                      )}
+                    </div>
+
+                    {finding.exploit_steps && (
+                      <div className="space-y-3">
+                        <h5 className="text-xs font-bold text-white/70 uppercase tracking-tight">The Hacker&apos;s Path</h5>
+                        <p className="text-sm text-[#999] leading-relaxed italic">
+                          &ldquo;{finding.exploit_steps}&rdquo;
+                        </p>
+                      </div>
+                    )}
+
+                    {finding.evidence && (
+                      <div className="space-y-3">
+                        <h5 className="text-xs font-bold text-white/70 uppercase tracking-tight flex items-center gap-2">
+                          <Terminal className="h-3 w-3" /> Exploit Evidence
+                        </h5>
+                        <div className="rounded-lg bg-[#111] border border-[#333] p-4 font-mono text-xs text-[#10b981] overflow-x-auto shadow-inner">
+                          <pre className="whitespace-pre-wrap">{finding.evidence}</pre>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )
+              ) : (
+                <div className="relative group/poc border border-dashed border-[#333] rounded-xl p-8 text-center bg-[#111]/20 overflow-hidden">
+                  <div className="filter blur-sm opacity-20 pointer-events-none select-none space-y-4">
+                    <h4 className="text-sm font-bold uppercase tracking-widest text-[#666]">Active Exploitation (PoC)</h4>
+                    <div className="h-4 bg-[#333] rounded w-3/4 mx-auto" />
+                    <div className="h-20 bg-[#333] rounded w-full" />
+                  </div>
+                  
+                  <div className="absolute inset-0 flex flex-col items-center justify-center p-6 bg-black/60 backdrop-blur-[2px]">
+                    <Lock className="h-8 w-8 text-[#444] mb-3" />
+                    <h4 className="text-white font-bold mb-1">Verify Active Access</h4>
+                    <p className="text-xs text-[#666] mb-6 max-w-[280px]">
+                      Quick scans are passive only. Upgrade to a <span className="text-emerald-500 font-bold">Deep Audit</span> to attempt active exploitation and see verified proof.
+                    </p>
+                    <UpgradeButton scanId={scanId} className="h-9 px-6 text-xs bg-[#222] border border-[#333] hover:bg-[#333]">
+                      Upgrade to Deep Audit
+                    </UpgradeButton>
+                  </div>
+                </div>
+              )}
+
               {/* Description Section */}
               <div className="grid gap-6 md:grid-cols-2">
                 <div className="space-y-3">
@@ -141,7 +204,7 @@ export function FindingCard({ finding, scanId }: FindingCardProps) {
                   <h4 className="text-sm font-bold uppercase tracking-widest text-[#666] flex items-center gap-2">
                     <Bug className="h-4 w-4" /> Technical Proof
                   </h4>
-                  <div className="rounded-lg bg-black border border-[#222] p-4 font-mono text-xs text-emerald-400 overflow-x-auto">
+                  <div className="rounded-lg bg-black border border-[#222] p-4 font-mono text-xs text-emerald-400/80 overflow-x-auto">
                     <pre>{finding.technical_proof}</pre>
                   </div>
                 </div>
