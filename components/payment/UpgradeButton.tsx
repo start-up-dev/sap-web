@@ -43,14 +43,17 @@ export function UpgradeButton({
 
       const response = await api.post(
         "/v1/payments/checkout",
-        { scan_id: numericScanId },
+        { 
+          scan_id: numericScanId,
+          success_url: `${window.location.origin}/payment/success`,
+          cancel_url: `${window.location.origin}/dashboard`
+        },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      // Redirect to Stripe Checkout in a new tab
+      // Redirect to Stripe Checkout
       if (response.data.checkout_url) {
-        window.open(response.data.checkout_url, "_blank");
-        toast.success("Checkout opened in a new tab.");
+        window.location.href = response.data.checkout_url;
       } else {
         throw new Error("Missing checkout URL");
       }

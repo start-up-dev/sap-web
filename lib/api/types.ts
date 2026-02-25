@@ -96,6 +96,8 @@ export interface ReportResponse {
 
 export interface CheckoutRequest {
   scan_id: number;
+  success_url?: string;
+  cancel_url?: string;
 }
 
 export interface CheckoutResponse {

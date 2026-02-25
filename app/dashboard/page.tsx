@@ -103,14 +103,16 @@ function DashboardContent() {
       if (isDeepScan) {
         toast.info("Initiating secure checkout...");
         const checkoutRes = await api.post("/v1/payments/checkout", 
-          { scan_id: scanId },
+          { 
+            scan_id: scanId,
+            success_url: `${window.location.origin}/payment/success`,
+            cancel_url: `${window.location.origin}/dashboard`
+          },
           { headers: { Authorization: `Bearer ${token}` } }
         );
         
         if (checkoutRes.data.checkout_url) {
-          window.open(checkoutRes.data.checkout_url, "_blank");
-          toast.success("Checkout opened in a new tab.");
-          router.push(`/scans/${scanId}`); // Still navigate to progress page in background
+          window.location.href = checkoutRes.data.checkout_url;
           return;
         }
       }
