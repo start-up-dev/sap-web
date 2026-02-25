@@ -56,7 +56,7 @@ export function VerificationDialog({
     try {
       setIsLoading(true);
       setError(null);
-      const token = await getToken();
+      const token = await getToken({ template: 'safeship-jwt' });
       
       const response = await api.post(
         `/v1/domains/${domain.id}/verify/`,
@@ -89,7 +89,7 @@ export function VerificationDialog({
     
     try {
       setIsVerifying(true);
-      const token = await getToken();
+      const token = await getToken({ template: 'safeship-jwt' });
       const response = await api.get(`/v1/domains/${domain.id}/verify/status/`, {
         headers: { Authorization: `Bearer ${token}` },
       });

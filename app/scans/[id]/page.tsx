@@ -36,7 +36,7 @@ export default function ScanProgressPage({ params }: PageProps) {
   useEffect(() => {
     const pollStatus = async () => {
       try {
-        const token = await getToken();
+        const token = await getToken({ template: 'safeship-jwt' });
         const response = await api.get(`/v1/scans/${id}/status`, {
           headers: { Authorization: `Bearer ${token}` },
         });

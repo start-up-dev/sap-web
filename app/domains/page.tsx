@@ -44,7 +44,7 @@ export default function DomainsPage() {
   const fetchDomains = useCallback(async () => {
     try {
       setIsLoading(true);
-      const token = await getToken();
+      const token = await getToken({ template: 'safeship-jwt' });
       const response = await api.get("/v1/domains", {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -74,7 +74,7 @@ export default function DomainsPage() {
     
     try {
       setIsAdding(true);
-      const token = await getToken();
+      const token = await getToken({ template: 'safeship-jwt' });
       const response = await api.post("/v1/domains", { domain_name: formattedUrl }, {
         headers: { Authorization: `Bearer ${token}` },
       });

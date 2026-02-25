@@ -28,7 +28,7 @@ export function UpgradeButton({
   const handleUpgrade = async () => {
     try {
       setIsLoading(true);
-      const token = await getToken();
+      const token = await getToken({ template: 'safeship-jwt' });
       
       // Ensure scanId is a valid number
       const numericScanId = Number(scanId);

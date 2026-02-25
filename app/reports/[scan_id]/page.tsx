@@ -44,7 +44,7 @@ function ReportContent({ params }: PageProps) {
   const fetchReport = useCallback(async () => {
     try {
       setError(null);
-      const token = await getToken();
+      const token = await getToken({ template: 'safeship-jwt' });
       const response = await api.get(`/v1/reports/${scan_id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -84,7 +84,7 @@ function ReportContent({ params }: PageProps) {
   const handleDownloadPDF = async () => {
     try {
       toast.info("Preparing PDF report...");
-      const token = await getToken();
+      const token = await getToken({ template: 'safeship-jwt' });
       const response = await api.get<ReportDownloadResponse>(`/v1/reports/${scan_id}/download`, {
         headers: { Authorization: `Bearer ${token}` },
       });

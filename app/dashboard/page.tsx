@@ -48,7 +48,7 @@ function DashboardContent() {
   const fetchData = useCallback(async () => {
     try {
       setIsLoading(true);
-      const token = await getToken();
+      const token = await getToken({ template: 'safeship-jwt' });
       
       const [scansRes, domainsRes] = await Promise.all([
         api.get("/v1/scans", { headers: { Authorization: `Bearer ${token}` } }),
@@ -75,7 +75,7 @@ function DashboardContent() {
 
     try {
       setIsStartingScan(true);
-      const token = await getToken();
+      const token = await getToken({ template: 'safeship-jwt' });
       
       // Determine if it should be a deep scan (if domain is verified)
       const normalizedInputUrl = url.trim().toLowerCase();
