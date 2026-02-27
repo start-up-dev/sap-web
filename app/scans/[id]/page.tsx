@@ -30,6 +30,64 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
+const PHASES = [
+  { 
+    id: "queued", 
+    label: "Job Queued", 
+    icon: Clock,
+    description: "Audit request received. Waiting for an isolated security worker instance to initialize."
+  },
+  { 
+    id: "crawling", 
+    label: "System Discovery", 
+    icon: Search,
+    description: "Mapping application structure, identifying all pages, forms, and API endpoints using Playwright."
+  },
+  { 
+    id: "scanning", 
+    label: "Active Vulnerability Testing", 
+    icon: Cpu,
+    description: "Probing for SQL injection, XSS, and infrastructure flaws with parallel security tools (ZAP, Nikto, Nmap)."
+  },
+  { 
+    id: "analyzing", 
+    label: "AI Threat Interpretation", 
+    icon: FileSearch,
+    description: "Gemini 2.5 Pro is analyzing technical results to deduplicate findings and generate remediation steps."
+  },
+  { 
+    id: "generating_report", 
+    label: "Finalizing Audit", 
+    icon: BarChart,
+    description: "Calculating security score and compiling your comprehensive PDF audit report."
+  },
+];
+
+// Map backend phase IDs or tool names to our high-level phase IDs
+function getMappedPhaseId(backendPhase: string | undefined, backendStatus: string | undefined, progress: number): string {
+  const phase = (backendPhase || "").toLowerCase();
+  const status = (backendStatus || "").toLowerCase();
+  
+  // 1. Explicit mapping for specific backend tool names or phases
+  if (["queued", "pending", "initializing"].includes(phase) || status === "queued") return "queued";
+  if (["crawling", "recon", "discovery", "crawler"].includes(phase) || status === "crawling") return "crawling";
+  if (["scanning", "scan", "zap", "nmap", "nikto", "sslyze", "ffuf"].includes(phase) || status === "scanning") return "scanning";
+  if (["analyzing", "interpretation", "gemini", "parsing"].includes(phase) || status === "analyzing") return "analyzing";
+  if (["generating_report", "reporting", "finalizing", "pdf"].includes(phase) || status === "generating_report") return "generating_report";
+  
+  // 2. Fallback to status field if phase is generic or unknown
+  if (status === "scanning") return "scanning";
+  if (status === "crawling") return "crawling";
+  
+  // 3. Heuristic fallback based on progress percentage if strings are missing/unknown
+  if (progress >= 90) return "generating_report";
+  if (progress >= 70) return "analyzing";
+  if (progress >= 20) return "scanning";
+  if (progress >= 5) return "crawling";
+  
+  return "queued";
+}
+
 export default function ScanProgressPage({ params }: PageProps) {
   const { id } = use(params);
   const { getToken } = useAuth();
@@ -38,6 +96,7 @@ export default function ScanProgressPage({ params }: PageProps) {
   
   const [status, setStatus] = useState<ScanStatusResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [currentPhaseIndex, setCurrentPhaseIndex] = useState(0);
 
   useEffect(() => {
     const pollStatus = async () => {
@@ -49,6 +108,15 @@ export default function ScanProgressPage({ params }: PageProps) {
         
         const data = response.data as ScanStatusResponse;
         setStatus(data);
+
+        // Calculate and update the phase index only if it's further than current
+        const nextPhaseId = getMappedPhaseId(data.phase, data.status, data.progress || 0);
+        const nextIndex = PHASES.findIndex(p => p.id === nextPhaseId);
+        
+        setCurrentPhaseIndex(prev => {
+          if (nextIndex > prev) return nextIndex;
+          return prev;
+        });
 
         if (data.status === "completed") {
           toast.success("Scan completed! Redirecting to report...");
@@ -71,56 +139,7 @@ export default function ScanProgressPage({ params }: PageProps) {
     };
   }, [id, getToken, router]);
 
-  const phases = [
-    { 
-      id: "queued", 
-      label: "Job Queued", 
-      icon: Clock,
-      description: "Audit request received. Waiting for an isolated security worker instance to initialize."
-    },
-    { 
-      id: "crawling", 
-      label: "System Discovery", 
-      icon: Search,
-      description: "Mapping application structure, identifying all pages, forms, and API endpoints using Playwright."
-    },
-    { 
-      id: "scanning", 
-      label: "Active Vulnerability Testing", 
-      icon: Cpu,
-      description: "Probing for SQL injection, XSS, and infrastructure flaws with parallel security tools (ZAP, Nikto, Nmap)."
-    },
-    { 
-      id: "analyzing", 
-      label: "AI Threat Interpretation", 
-      icon: FileSearch,
-      description: "Gemini 2.5 Pro is analyzing technical results to deduplicate findings and generate remediation steps."
-    },
-    { 
-      id: "generating_report", 
-      label: "Finalizing Audit", 
-      icon: BarChart,
-      description: "Calculating security score and compiling your comprehensive PDF audit report."
-    },
-  ];
-
-  // Map backend phase IDs or tool names to our high-level phase IDs
-  const getMappedPhaseId = (backendPhase: string | undefined): string => {
-    if (!backendPhase) return "queued";
-    const phase = backendPhase.toLowerCase();
-    
-    if (["queued", "pending", "initializing"].includes(phase)) return "queued";
-    if (["crawling", "recon", "discovery", "crawler"].includes(phase)) return "crawling";
-    if (["scanning", "scan", "zap", "nmap", "nikto", "sslyze", "ffuf"].includes(phase)) return "scanning";
-    if (["analyzing", "interpretation", "gemini", "parsing"].includes(phase)) return "analyzing";
-    if (["generating_report", "reporting", "finalizing", "pdf"].includes(phase)) return "generating_report";
-    
-    return "queued";
-  };
-
-  const currentMappedPhaseId = getMappedPhaseId(status?.phase);
-  const currentPhaseIndex = phases.findIndex(p => p.id === currentMappedPhaseId);
-  const displayPhaseLabel = phases[currentPhaseIndex]?.label || "Initializing...";
+  const displayPhaseLabel = PHASES[currentPhaseIndex]?.label || "Initializing...";
 
   if (error) {
     return (
@@ -256,7 +275,7 @@ export default function ScanProgressPage({ params }: PageProps) {
                     {/* Connecting line */}
                     <div className="absolute left-[19px] top-4 bottom-4 w-[2px] bg-white/5 z-0" />
                     
-                    {phases.map((phase, index) => {
+                    {PHASES.map((phase, index) => {
                       const isActuallyCompleted = status?.status === "completed";
                       const isCompleted = index < currentPhaseIndex || isActuallyCompleted;
                       const isCurrent = index === currentPhaseIndex && !isActuallyCompleted;
