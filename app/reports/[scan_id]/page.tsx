@@ -10,7 +10,7 @@ import {
   Lock,
   ArrowLeft
 } from "lucide-react";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth, UserButton } from "@clerk/nextjs";
 import { useRouter, useSearchParams } from "next/navigation";
 import { api } from "@/lib/api/client";
 import { ReportResponse, Severity, ReportDownloadResponse } from "@/lib/api/types";
@@ -208,6 +208,9 @@ function ReportContent({ params }: PageProps) {
                 <Download className="mr-2 h-4 w-4" /> Download PDF
               </Button>
             )}
+            <div className="ml-2 pl-2 border-l border-[#222]">
+              <UserButton afterSignOutUrl="/" />
+            </div>
           </div>
         </div>
       </div>

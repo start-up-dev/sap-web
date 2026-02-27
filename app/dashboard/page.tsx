@@ -32,6 +32,7 @@ import Link from "next/link";
 import { formatDate, formatDuration } from "@/lib/utils";
 import { UpgradeButton } from "@/components/payment/UpgradeButton";
 import { AxiosError } from "axios";
+import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 
 function DashboardContent() {
   const { getToken } = useAuth();
@@ -310,6 +311,7 @@ function DashboardContent() {
 export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-black text-white">
+      <DashboardHeader />
       <Suspense fallback={
         <div className="flex h-[80vh] items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
