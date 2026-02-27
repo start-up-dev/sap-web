@@ -104,7 +104,23 @@ export default function ScanProgressPage({ params }: PageProps) {
     },
   ];
 
-  const currentPhaseIndex = phases.findIndex(p => p.id === status?.phase) || 0;
+  // Map backend phase IDs or tool names to our high-level phase IDs
+  const getMappedPhaseId = (backendPhase: string | undefined): string => {
+    if (!backendPhase) return "queued";
+    const phase = backendPhase.toLowerCase();
+    
+    if (["queued", "pending", "initializing"].includes(phase)) return "queued";
+    if (["crawling", "recon", "discovery", "crawler"].includes(phase)) return "crawling";
+    if (["scanning", "scan", "zap", "nmap", "nikto", "sslyze", "ffuf"].includes(phase)) return "scanning";
+    if (["analyzing", "interpretation", "gemini", "parsing"].includes(phase)) return "analyzing";
+    if (["generating_report", "reporting", "finalizing", "pdf"].includes(phase)) return "generating_report";
+    
+    return "queued";
+  };
+
+  const currentMappedPhaseId = getMappedPhaseId(status?.phase);
+  const currentPhaseIndex = phases.findIndex(p => p.id === currentMappedPhaseId);
+  const displayPhaseLabel = phases[currentPhaseIndex]?.label || "Initializing...";
 
   if (error) {
     return (
@@ -208,12 +224,12 @@ export default function ScanProgressPage({ params }: PageProps) {
                         Current Phase
                       </p>
                       <h2 className="text-xl font-bold text-white">
-                        {status?.phase?.replace("_", " ") || "Initializing..."}
+                        {status?.status === "completed" ? "Audit Completed" : displayPhaseLabel}
                       </h2>
                     </div>
                     <div className="text-right">
                       <span className="text-3xl font-black text-white">
-                        {status?.progress || 0}%
+                        {status?.status === "completed" ? 100 : (status?.progress || 0)}%
                       </span>
                     </div>
                   </div>
@@ -223,13 +239,13 @@ export default function ScanProgressPage({ params }: PageProps) {
                     <motion.div 
                       className="absolute inset-0 bg-emerald-500/20"
                       initial={{ width: 0 }}
-                      animate={{ width: `${status?.progress || 0}%` }}
+                      animate={{ width: `${status?.status === "completed" ? 100 : (status?.progress || 0)}%` }}
                       transition={{ duration: 1, ease: "easeInOut" }}
                     />
                     <motion.div 
                       className="h-full bg-emerald-500 relative"
                       initial={{ width: 0 }}
-                      animate={{ width: `${status?.progress || 0}%` }}
+                      animate={{ width: `${status?.status === "completed" ? 100 : (status?.progress || 0)}%` }}
                       transition={{ duration: 1, ease: "easeOut" }}
                     >
                       <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/30 to-transparent animate-[shimmer_2s_infinite]" style={{ backgroundSize: '200% 100%' }} />
@@ -241,8 +257,9 @@ export default function ScanProgressPage({ params }: PageProps) {
                     <div className="absolute left-[19px] top-4 bottom-4 w-[2px] bg-white/5 z-0" />
                     
                     {phases.map((phase, index) => {
-                      const isCompleted = index < currentPhaseIndex || status?.status === "completed";
-                      const isCurrent = index === currentPhaseIndex;
+                      const isActuallyCompleted = status?.status === "completed";
+                      const isCompleted = index < currentPhaseIndex || isActuallyCompleted;
+                      const isCurrent = index === currentPhaseIndex && !isActuallyCompleted;
                       const Icon = phase.icon;
 
                       return (
