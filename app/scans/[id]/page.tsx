@@ -3,23 +3,28 @@
 import { useState, useEffect, use, useRef } from "react";
 import { 
   Loader2, 
-  Shield, 
   Search, 
   Cpu, 
   FileSearch, 
   BarChart, 
   CheckCircle2, 
   AlertCircle,
-  Clock
+  Clock,
+  Mail,
+  Zap,
+  Activity
 } from "lucide-react";
 import { useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import { api } from "@/lib/api/client";
 import { ScanStatusResponse } from "@/lib/api/types";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -67,11 +72,36 @@ export default function ScanProgressPage({ params }: PageProps) {
   }, [id, getToken, router]);
 
   const phases = [
-    { id: "queued", label: "Queued", icon: Clock },
-    { id: "crawling", label: "Crawling", icon: Search },
-    { id: "scanning", label: "Scanning", icon: Cpu },
-    { id: "analyzing", label: "Analyzing", icon: FileSearch },
-    { id: "generating_report", label: "Finalizing", icon: BarChart },
+    { 
+      id: "queued", 
+      label: "Job Queued", 
+      icon: Clock,
+      description: "Audit request received. Waiting for an isolated security worker instance to initialize."
+    },
+    { 
+      id: "crawling", 
+      label: "System Discovery", 
+      icon: Search,
+      description: "Mapping application structure, identifying all pages, forms, and API endpoints using Playwright."
+    },
+    { 
+      id: "scanning", 
+      label: "Active Vulnerability Testing", 
+      icon: Cpu,
+      description: "Probing for SQL injection, XSS, and infrastructure flaws with parallel security tools (ZAP, Nikto, Nmap)."
+    },
+    { 
+      id: "analyzing", 
+      label: "AI Threat Interpretation", 
+      icon: FileSearch,
+      description: "Gemini 2.5 Pro is analyzing technical results to deduplicate findings and generate remediation steps."
+    },
+    { 
+      id: "generating_report", 
+      label: "Finalizing Audit", 
+      icon: BarChart,
+      description: "Calculating security score and compiling your comprehensive PDF audit report."
+    },
   ];
 
   const currentPhaseIndex = phases.findIndex(p => p.id === status?.phase) || 0;
@@ -79,13 +109,18 @@ export default function ScanProgressPage({ params }: PageProps) {
   if (error) {
     return (
       <div className="min-h-screen bg-black text-white">
+        <DashboardHeader />
         <main className="flex h-[80vh] flex-col items-center justify-center p-4 text-center">
-          <div className="h-16 w-16 rounded-full bg-red-500/10 flex items-center justify-center mb-6">
-            <AlertCircle className="h-8 w-8 text-red-500" />
-          </div>
-          <h1 className="text-2xl font-bold mb-2">Scan Failed</h1>
-          <p className="text-[#999] mb-8 max-w-md">{error}</p>
-          <Button onClick={() => router.push("/dashboard")} className="bg-[#222] hover:bg-[#333]">
+          <motion.div 
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="h-20 w-20 rounded-2xl bg-red-500/10 flex items-center justify-center mb-6 border border-red-500/20"
+          >
+            <AlertCircle className="h-10 w-10 text-red-500" />
+          </motion.div>
+          <h1 className="text-3xl font-bold mb-2">Scan Failed</h1>
+          <p className="text-muted-foreground mb-8 max-w-md">{error}</p>
+          <Button onClick={() => router.push("/dashboard")} variant="outline" className="border-white/10 hover:bg-white/5">
             Return to Dashboard
           </Button>
         </main>
@@ -94,92 +129,176 @@ export default function ScanProgressPage({ params }: PageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-black text-white selection:bg-emerald-500/30">
       <DashboardHeader />
-      <main className="mx-auto max-w-3xl px-4 py-20 sm:px-6">
-        <div className="text-center mb-12">
-          <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-500 mb-6 animate-pulse">
-            <Shield className="h-8 w-8" />
-          </div>
-          <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
-            Audit in Progress
-          </h1>
-          <p className="mt-4 text-lg text-[#999]">
-            Our AI agent is currently probing your application for vulnerabilities.
-          </p>
-        </div>
+      
+      {/* Background decoration */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-[25%] -left-[10%] w-[50%] h-[50%] bg-emerald-500/10 blur-[120px] rounded-full" />
+        <div className="absolute top-[20%] -right-[10%] w-[40%] h-[40%] bg-blue-500/5 blur-[100px] rounded-full" />
+      </div>
 
-        {/* Status Card */}
-        <div className="rounded-2xl border border-[#222] bg-[#0a0a0a] p-8 shadow-2xl relative overflow-hidden">
-          {/* Progress fill background effect */}
-          <div 
-            className="absolute inset-0 bg-emerald-500/5 transition-all duration-1000 ease-in-out" 
-            style={{ width: `${status?.progress || 0}%` }}
-          />
+      <main className="relative z-10 mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:py-24">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
           
-          <div className="relative z-10">
-            <div className="flex justify-between items-end mb-4">
-              <span className="text-sm font-bold uppercase tracking-widest text-emerald-500">
-                {status?.phase?.replace("_", " ") || "Initializing..."}
-              </span>
-              <span className="text-2xl font-black text-white">
-                {status?.progress || 0}%
-              </span>
-            </div>
-            
-            {/* Custom progress bar since we might not have the shadcn one yet */}
-            <div className="h-3 w-full bg-[#222] rounded-full overflow-hidden mb-8">
-              <div 
-                className="h-full bg-emerald-500 transition-all duration-500 ease-out"
-                style={{ width: `${status?.progress || 0}%` }}
-              />
+          {/* Left Column: Title and Descriptions */}
+          <div className="lg:col-span-5 space-y-8">
+            <div>
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.5 }}
+              >
+                <Badge variant="outline" className="mb-4 border-emerald-500/30 text-emerald-500 bg-emerald-500/5 px-3 py-1">
+                  <Activity className="h-3 w-3 mr-2 animate-pulse" />
+                  Live Audit in Progress
+                </Badge>
+                <h1 className="text-4xl font-bold tracking-tight sm:text-5xl bg-clip-text text-transparent bg-linear-to-b from-white to-white/60">
+                  Securing Your Application
+                </h1>
+                <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
+                  Our autonomous AI agent is currently probing your target for 38+ vulnerability categories.
+                </p>
+              </motion.div>
             </div>
 
-            <div className="space-y-6">
-              {phases.map((phase, index) => {
-                const isCompleted = index < currentPhaseIndex || status?.status === "completed";
-                const isCurrent = index === currentPhaseIndex;
-                const Icon = phase.icon;
+            <div className="space-y-6 pt-4 border-t border-white/5">
+              <div className="flex gap-4 items-start">
+                <div className="mt-1 p-2 rounded-lg bg-blue-500/10 text-blue-400">
+                  <Clock className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-white">Estimated Time</h3>
+                  <p className="text-sm text-muted-foreground">Typically takes 15 to 30 minutes for a comprehensive deep audit.</p>
+                </div>
+              </div>
+              <div className="flex gap-4 items-start">
+                <div className="mt-1 p-2 rounded-lg bg-purple-500/10 text-purple-400">
+                  <Mail className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-white">Automated Notification</h3>
+                  <p className="text-sm text-muted-foreground">We&apos;ll message you via email once the full report is ready for review.</p>
+                </div>
+              </div>
+              <div className="flex gap-4 items-start">
+                <div className="mt-1 p-2 rounded-lg bg-emerald-500/10 text-emerald-400">
+                  <Zap className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-white">Real-time Dashboard</h3>
+                  <p className="text-sm text-muted-foreground">You can safely close this page; the audit will continue in the background.</p>
+                </div>
+              </div>
+            </div>
+          </div>
 
-                return (
-                  <div key={phase.id} className="flex items-center gap-4">
-                    <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border ${
-                      isCompleted ? "bg-emerald-500 border-emerald-500 text-black" :
-                      isCurrent ? "border-emerald-500 text-emerald-500 animate-pulse" :
-                      "border-[#222] text-[#444]"
-                    }`}>
-                      {isCompleted ? <CheckCircle2 className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
-                    </div>
-                    <div className="flex-1">
-                      <p className={`font-semibold ${isCompleted || isCurrent ? "text-white" : "text-[#444]"}`}>
-                        {phase.label}
+          {/* Right Column: Progress Card */}
+          <div className="lg:col-span-7">
+            <motion.div
+              initial={{ x: 20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <Card className="border-white/10 bg-white/[0.02] backdrop-blur-2xl p-1 sm:p-2 overflow-hidden shadow-2xl">
+                <div className="bg-black/40 rounded-[calc(var(--radius)-4px)] p-6 sm:p-8">
+                  <div className="flex justify-between items-end mb-6">
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-widest text-emerald-500 mb-1">
+                        Current Phase
                       </p>
-                      {isCurrent && (
-                        <p className="text-sm text-emerald-500/80 animate-in fade-in slide-in-from-left-2">
-                          {status?.message}
-                        </p>
-                      )}
+                      <h2 className="text-xl font-bold text-white">
+                        {status?.phase?.replace("_", " ") || "Initializing..."}
+                      </h2>
                     </div>
-                    {isCurrent && <Loader2 className="h-4 w-4 animate-spin text-emerald-500" />}
+                    <div className="text-right">
+                      <span className="text-3xl font-black text-white">
+                        {status?.progress || 0}%
+                      </span>
+                    </div>
                   </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
+                  
+                  {/* Enhanced progress bar */}
+                  <div className="h-4 w-full bg-white/5 rounded-full overflow-hidden mb-10 border border-white/5 relative">
+                    <motion.div 
+                      className="absolute inset-0 bg-emerald-500/20"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${status?.progress || 0}%` }}
+                      transition={{ duration: 1, ease: "easeInOut" }}
+                    />
+                    <motion.div 
+                      className="h-full bg-emerald-500 relative"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${status?.progress || 0}%` }}
+                      transition={{ duration: 1, ease: "easeOut" }}
+                    >
+                      <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/30 to-transparent animate-[shimmer_2s_infinite]" style={{ backgroundSize: '200% 100%' }} />
+                    </motion.div>
+                  </div>
 
-        <div className="mt-12 flex flex-col items-center gap-4 text-center">
-          <div className="flex items-center gap-2 text-[#666] text-sm">
-            <Clock className="h-4 w-4" />
-            <span>Estimated time remaining: {Math.ceil((status?.estimated_remaining_seconds || 0) / 60)} minutes</span>
+                  <div className="space-y-8 relative">
+                    {/* Connecting line */}
+                    <div className="absolute left-[19px] top-4 bottom-4 w-[2px] bg-white/5 z-0" />
+                    
+                    {phases.map((phase, index) => {
+                      const isCompleted = index < currentPhaseIndex || status?.status === "completed";
+                      const isCurrent = index === currentPhaseIndex;
+                      const Icon = phase.icon;
+
+                      return (
+                        <div key={phase.id} className="relative z-10 flex gap-6">
+                          <motion.div 
+                            animate={isCurrent ? { scale: [1, 1.1, 1], opacity: [1, 0.8, 1] } : {}}
+                            transition={{ repeat: Infinity, duration: 2 }}
+                            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border transition-colors duration-500 ${
+                              isCompleted ? "bg-emerald-500 border-emerald-500 text-black shadow-[0_0_15px_rgba(16,185,129,0.4)]" :
+                              isCurrent ? "bg-black border-emerald-500 text-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.2)]" :
+                              "bg-black border-white/10 text-white/20"
+                            }`}
+                          >
+                            {isCompleted ? <CheckCircle2 className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
+                          </motion.div>
+                          <div className="flex-1 space-y-1">
+                            <div className="flex items-center justify-between">
+                              <p className={`font-bold transition-colors duration-500 ${isCompleted || isCurrent ? "text-white" : "text-white/20"}`}>
+                                {phase.label}
+                              </p>
+                              {isCurrent && <Loader2 className="h-4 w-4 animate-spin text-emerald-500" />}
+                            </div>
+                            <AnimatePresence mode="wait">
+                              {(isCurrent || isCompleted) && (
+                                <motion.p 
+                                  initial={{ height: 0, opacity: 0 }}
+                                  animate={{ height: "auto", opacity: 1 }}
+                                  exit={{ height: 0, opacity: 0 }}
+                                  className={`text-sm leading-relaxed transition-colors duration-500 ${
+                                    isCurrent ? "text-emerald-500/80" : "text-muted-foreground/60"
+                                  }`}
+                                >
+                                  {isCurrent ? (status?.message || phase.description) : phase.description}
+                                </motion.p>
+                              )}
+                            </AnimatePresence>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </Card>
+            </motion.div>
           </div>
-          <p className="text-xs text-[#444] max-w-md">
-            You can safely close this window. We&apos;ll email you a link to the full report once it&apos;s ready.
-          </p>
         </div>
       </main>
       
-      <Toaster position="top-right" />
+      <Toaster position="top-right" theme="dark" />
+      
+      <style jsx global>{`
+        @keyframes shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+      `}</style>
     </div>
   );
 }
