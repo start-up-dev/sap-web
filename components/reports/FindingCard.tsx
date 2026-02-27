@@ -38,6 +38,11 @@ export function FindingCard({ finding, scanId, isDeepScan }: FindingCardProps) {
   const config = severityConfig[finding.severity];
   const Icon = config.icon;
 
+  const isLockedTitle = !finding.unlocked && finding.title.toLowerCase().includes("upgrade to deep audit");
+  const displayTitle = isLockedTitle 
+    ? `Potential ${finding.category.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')} Risk`
+    : finding.title;
+
   if (!finding.unlocked) {
     return (
       <div className="group relative rounded-xl border border-[#222] bg-[#0a0a0a] p-6 transition-all hover:border-[#333] overflow-hidden">
@@ -53,7 +58,7 @@ export function FindingCard({ finding, scanId, isDeepScan }: FindingCardProps) {
                 </Badge>
                 <span className="text-xs text-[#444] font-mono">ID: {finding.id}</span>
               </div>
-              <h3 className="text-lg font-bold text-white">{finding.title}</h3>
+              <h3 className="text-lg font-bold text-white">{displayTitle}</h3>
               {finding.category && (
                 <span className="text-xs text-[#666] uppercase tracking-widest font-bold mt-1 block">
                   {finding.category}
@@ -103,7 +108,7 @@ export function FindingCard({ finding, scanId, isDeepScan }: FindingCardProps) {
               )}
               <span className="text-xs text-[#444] font-mono">ID: {finding.id}</span>
             </div>
-            <h3 className="text-lg font-bold text-white">{finding.title}</h3>
+            <h3 className="text-lg font-bold text-white">{displayTitle}</h3>
             {finding.category && (
               <span className="text-xs text-[#666] uppercase tracking-widest font-bold mt-1 block">
                 {finding.category}

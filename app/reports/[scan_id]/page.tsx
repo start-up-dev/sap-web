@@ -261,21 +261,24 @@ function ReportContent({ params }: PageProps) {
           </div>
 
           {isFreeScan && (
-            <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-6 mb-8 flex flex-col sm:flex-row items-center justify-between gap-6">
-              <div className="flex items-start gap-4">
-                <div className="mt-1 h-10 w-10 shrink-0 rounded-full bg-emerald-500/10 flex items-center justify-center">
-                  <Lock className="h-5 w-5 text-emerald-500" />
+            <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-8 mb-10 flex flex-col lg:flex-row items-center justify-between gap-8 relative overflow-hidden">
+              {/* Glow effect */}
+              <div className="absolute -left-20 -top-20 w-64 h-64 bg-emerald-500/10 blur-[100px] rounded-full" />
+              
+              <div className="flex items-start gap-6 relative z-10">
+                <div className="mt-1 h-14 w-14 shrink-0 rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shadow-[0_0_20px_rgba(16,185,129,0.1)]">
+                  <Lock className="h-7 w-7 text-emerald-500" />
                 </div>
-                <div>
-                  <h3 className="text-lg font-bold text-white">Unlock Full Audit Details</h3>
-                  <p className="text-sm text-[#999] max-w-md mt-1">
-                    Free scans only show partial results. Upgrade to a Deep Audit to unlock all findings, remediation steps, and technical proof.
+                <div className="space-y-2">
+                  <h3 className="text-2xl font-bold text-white tracking-tight">Your Audit is Incomplete</h3>
+                  <p className="text-base text-[#999] max-w-2xl leading-relaxed">
+                    This was a <span className="text-white font-semibold italic">passive, surface-level scan</span>. While we&apos;ve identified potential entry points, our <span className="text-emerald-400 font-bold underline decoration-emerald-400/30 underline-offset-4">Deep Audit</span> performs active exploit-testing to confirm exactly how a hacker could breach your system. Don&apos;t leave your data to chance.
                   </p>
                 </div>
               </div>
               <UpgradeButton 
                 scanId={report.scan_id || Number(scan_id)}
-                className="bg-emerald-500 font-bold hover:bg-emerald-400 h-12 px-8 shadow-xl shadow-emerald-500/20"
+                className="bg-emerald-500 font-black text-black hover:bg-emerald-400 h-14 px-10 rounded-xl shadow-2xl shadow-emerald-500/40 transition-all hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
               >
                 Unlock Everything — $29
               </UpgradeButton>
