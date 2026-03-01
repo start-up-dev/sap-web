@@ -13,7 +13,7 @@ import {
 import { useAuth, UserButton } from "@clerk/nextjs";
 import { useRouter, useSearchParams } from "next/navigation";
 import { api } from "@/lib/api/client";
-import { ReportResponse, Severity, ReportDownloadResponse } from "@/lib/api/types";
+import { ReportResponse, Severity, ReportDownloadResponse, ShareResponse } from "@/lib/api/types";
 import { AxiosError } from "axios";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
