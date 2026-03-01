@@ -65,19 +65,26 @@ function ReportContent({ params }: PageProps) {
   }, [scan_id, getToken]);
 
   const handleShare = async () => {
-    const url = window.location.href;
     try {
+      const token = await getToken({ template: 'safeship-jwt' });
+      const response = await api.post<ShareResponse>(`/v1/reports/${scan_id}/share`, {}, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      
+      const shareUrl = response.data.share_url;
+
       if (navigator.share) {
         await navigator.share({
           title: `Security Audit Report - ${report?.target_url}`,
-          url: url
+          url: shareUrl
         });
       } else {
-        await navigator.clipboard.writeText(url);
-        toast.success("Link copied to clipboard!");
+        await navigator.clipboard.writeText(shareUrl);
+        toast.success("Tokenized link (24h) copied to clipboard!");
       }
     } catch (err) {
       console.error("Error sharing:", err);
+      toast.error("Failed to generate share link.");
     }
   };
 

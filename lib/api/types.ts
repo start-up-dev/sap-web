@@ -107,3 +107,9 @@ export interface CheckoutResponse {
 export interface ReportDownloadResponse {
   download_url: string;
 }
+
+export interface ShareResponse {
+  share_token: string;
+  share_url: string;
+  expires_at: string;
+}
