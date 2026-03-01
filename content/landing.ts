@@ -43,7 +43,7 @@ export const landingContent = {
     {
       title: "Deep Audit When You're Ready",
       description:
-        "Verify domain ownership once, then run a full active scan. 38+ checks across OWASP Top 10, SSL/TLS, headers, APIs, and more. One-time $29 per audit.",
+        "Run a full active scan across 38+ checks including OWASP Top 10, SSL/TLS, headers, APIs, and more. One-time $29 per audit. No complex verification required.",
     },
     {
       title: "Plain-English Reports",
@@ -156,7 +156,7 @@ export const landingContent = {
       },
       {
         q: "Do I need to verify my domain?",
-        a: "For the Free Quick Scan (passive), no verification is needed. For the $29 Deep Audit (active exploit testing), you must verify ownership via a DNS record, file upload, or meta tag."
+        a: "No. You can run a Quick Scan or a Deep Audit on any URL immediately. We've automated the process so you can get security results without complex DNS configuration."
       },
       {
         q: "Is it a monthly subscription?",

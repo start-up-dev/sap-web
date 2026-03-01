@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback, Suspense } from "react";
 import { 
-  ShieldCheck, 
   History, 
   Plus, 
   Search, 
@@ -14,7 +13,7 @@ import {
 import { useAuth } from "@clerk/nextjs";
 import { useRouter, useSearchParams } from "next/navigation";
 import { api } from "@/lib/api/client";
-import { ScanResponse, DomainResponse } from "@/lib/api/types";
+import { ScanResponse } from "@/lib/api/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -26,6 +25,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import Link from "next/link";
@@ -41,23 +41,21 @@ function DashboardContent() {
   const urlFromQuery = searchParams.get("url");
 
   const [scans, setScans] = useState<ScanResponse[]>([]);
-  const [domains, setDomains] = useState<DomainResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isStartingScan, setIsStartingScan] = useState(false);
   const [url, setUrl] = useState(urlFromQuery || "");
+  const [scanType, setScanType] = useState<"quick" | "deep">("quick");
 
   const fetchData = useCallback(async () => {
     try {
       setIsLoading(true);
       const token = await getToken({ template: 'safeship-jwt' });
       
-      const [scansRes, domainsRes] = await Promise.all([
-        api.get("/v1/scans", { headers: { Authorization: `Bearer ${token}` } }),
-        api.get("/v1/domains", { headers: { Authorization: `Bearer ${token}` } })
-      ]);
+      const response = await api.get("/v1/scans", { 
+        headers: { Authorization: `Bearer ${token}` } 
+      });
       
-      setScans(scansRes.data);
-      setDomains(domainsRes.data);
+      setScans(response.data);
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
       toast.error("Failed to load dashboard data.");
@@ -78,21 +76,11 @@ function DashboardContent() {
       setIsStartingScan(true);
       const token = await getToken({ template: 'safeship-jwt' });
       
-      // Determine if it should be a deep scan (if domain is verified)
-      const normalizedInputUrl = url.trim().toLowerCase();
-      const domainMatch = domains.find(d => {
-        const domainStr = d?.domain_name || d?.url;
-        if (!domainStr) return false;
-        const normalizedDomain = domainStr.toLowerCase().replace(/^https?:\/\//, "");
-        return normalizedInputUrl.includes(normalizedDomain);
-      });
-      
-      const isDeepScan = Boolean(domainMatch?.is_verified);
+      const isDeepScan = scanType === "deep";
 
       const response = await api.post("/v1/scans", 
         { 
           target_url: url.trim(), 
-          domain_id: domainMatch?.id,
           is_deep_scan: isDeepScan 
         },
         { headers: { Authorization: `Bearer ${token}` } }
@@ -124,13 +112,6 @@ function DashboardContent() {
       console.error("Error starting scan:", error);
       const axiosError = error as AxiosError<{ detail?: string | Array<{ loc: string[]; msg: string }> }>;
       
-      // Handle 403 Forbidden (Domain not verified)
-      if (axiosError.response?.status === 403) {
-        toast.error("Domain verification required for Deep Audits.");
-        router.push("/domains");
-        return;
-      }
-
       let errorMessage = "Failed to start scan.";
       
       const detail = axiosError.response?.data?.detail;
@@ -167,11 +148,40 @@ function DashboardContent() {
       </div>
 
       {/* Quick Actions / New Scan */}
-      <div className="grid gap-6 md:grid-cols-3 mb-12">
-        <div className="md:col-span-2 rounded-2xl border border-[#222] bg-[#0a0a0a] p-6 shadow-xl">
-          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <Plus className="h-5 w-5 text-emerald-500" /> Start New Scan
-          </h2>
+      <div className="grid gap-6 md:grid-cols-4 mb-12">
+        <div className="md:col-span-4 rounded-2xl border border-[#222] bg-[#0a0a0a] p-6 shadow-xl relative overflow-hidden">
+          {/* Subtle background glow */}
+          <div className="absolute -top-24 -right-24 h-64 w-64 bg-emerald-500/5 blur-[100px] pointer-events-none" />
+          <div className="absolute -bottom-24 -left-24 h-64 w-64 bg-emerald-500/5 blur-[100px] pointer-events-none" />
+
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+            <h2 className="text-lg font-semibold flex items-center gap-2">
+              <Plus className="h-5 w-5 text-emerald-500" /> Start New Scan
+            </h2>
+            
+            <Tabs 
+              defaultValue="quick" 
+              value={scanType} 
+              onValueChange={(v) => setScanType(v as "quick" | "deep")}
+              className="w-full md:w-auto"
+            >
+              <TabsList className="grid w-full grid-cols-2 bg-[#1a1a1a] border-[#333]">
+                <TabsTrigger 
+                  value="quick" 
+                  className="data-[state=active]:bg-black data-[state=active]:text-white text-[#999]"
+                >
+                  Quick Scan (Free)
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="deep"
+                  className="data-[state=active]:bg-emerald-500 data-[state=active]:text-white text-[#999]"
+                >
+                  Deep Audit ($29)
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
+
           <form onSubmit={handleStartScan} className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#666]" />
@@ -179,22 +189,39 @@ function DashboardContent() {
                 placeholder="https://your-app.com"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
-                className="pl-10 border-[#333] bg-black text-white h-12"
+                className="pl-10 border-[#333] bg-black text-white h-12 focus:border-emerald-500/50 transition-colors"
               />
             </div>
             <Button 
               type="submit"
               disabled={isStartingScan || !url}
-              className="bg-emerald-500 font-bold hover:bg-emerald-400 h-12 px-8"
+              className={`font-bold h-12 px-8 transition-all duration-300 ${
+                scanType === 'deep' 
+                  ? 'bg-emerald-500 hover:bg-emerald-400 text-white shadow-[0_0_20px_rgba(16,185,129,0.3)]' 
+                  : 'bg-white text-black hover:bg-gray-200'
+              }`}
             >
-              {isStartingScan ? <Loader2 className="h-4 w-4 animate-spin" /> : "Run Audit"}
+              {isStartingScan ? <Loader2 className="h-4 w-4 animate-spin" /> : 
+               scanType === 'deep' ? "Start Deep Audit" : "Run Quick Scan"}
             </Button>
           </form>
-          <p className="mt-3 text-xs text-[#666]">
-            Free quick scans for any URL. Deep audits require domain verification.
-          </p>
+          
+          <div className="mt-4 flex flex-wrap gap-4 text-xs text-[#666]">
+            {scanType === 'quick' ? (
+              <p className="flex items-center gap-1.5">
+                <span className="h-1 w-1 rounded-full bg-emerald-500" />
+                Passive, read-only scan that finds common vulnerabilities in minutes.
+              </p>
+            ) : (
+              <p className="flex items-center gap-1.5">
+                <span className="h-1 w-1 rounded-full bg-emerald-500" />
+                Active exploit-testing across 38+ vulnerability categories. No verification required.
+              </p>
+            )}
+          </div>
         </div>
 
+        {/* Commented out Verified Domains card for now
         <div className="rounded-2xl border border-[#222] bg-[#0a0a0a] p-6 shadow-xl flex flex-col justify-center text-center">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-500 mb-4">
             <ShieldCheck className="h-6 w-6" />
@@ -204,6 +231,7 @@ function DashboardContent() {
             Manage Domains <ArrowRight className="h-3 w-3" />
           </Link>
         </div>
+        */}
       </div>
 
       {/* Recent Scans */}

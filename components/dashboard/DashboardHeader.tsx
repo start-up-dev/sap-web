@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ShieldCheck, LayoutDashboard, Globe } from "lucide-react";
+import { ShieldCheck, LayoutDashboard } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
 
 export function DashboardHeader() {
@@ -24,6 +24,7 @@ export function DashboardHeader() {
             <LayoutDashboard className="h-4 w-4" />
             <span className="hidden sm:inline">Dashboard</span>
           </Link>
+          {/* Hiding Domains for now - auto-verified by backend 
           <Link
             href="/domains"
             className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-foreground/70 transition-colors hover:text-foreground hover:bg-white/5 rounded-md"
@@ -31,6 +32,7 @@ export function DashboardHeader() {
             <Globe className="h-4 w-4" />
             <span className="hidden sm:inline">Domains</span>
           </Link>
+          */}
         </nav>
 
         <div className="flex items-center gap-4">
