@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { SecurityScoreRing } from "@/components/reports/SecurityScoreRing";
 import { FindingCard } from "@/components/reports/FindingCard";
+import { ShareReportDialog } from "@/components/reports/ShareReportDialog";
 import Link from "next/link";
 import { UpgradeButton } from "@/components/payment/UpgradeButton";
 import { formatDate, formatDuration } from "@/lib/utils";
@@ -39,6 +40,9 @@ function ReportContent({ params }: PageProps) {
   
   const [report, setReport] = useState<ReportResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSharing, setIsSharing] = useState(false);
+  const [shareData, setShareData] = useState<{ url: string; expiresAt: string } | null>(null);
+  const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [error, setError] = useState<{ status?: number; message: string } | null>(null);
 
   const fetchReport = useCallback(async () => {
@@ -66,25 +70,22 @@ function ReportContent({ params }: PageProps) {
 
   const handleShare = async () => {
     try {
+      setIsSharing(true);
       const token = await getToken({ template: 'safeship-jwt' });
       const response = await api.post<ShareResponse>(`/v1/reports/${scan_id}/share`, {}, {
         headers: { Authorization: `Bearer ${token}` },
       });
       
-      const shareUrl = response.data.share_url;
-
-      if (navigator.share) {
-        await navigator.share({
-          title: `Security Audit Report - ${report?.target_url}`,
-          url: shareUrl
-        });
-      } else {
-        await navigator.clipboard.writeText(shareUrl);
-        toast.success("Tokenized link (24h) copied to clipboard!");
-      }
+      setShareData({
+        url: response.data.share_url,
+        expiresAt: response.data.expires_at
+      });
+      setIsShareDialogOpen(true);
     } catch (err) {
       console.error("Error sharing:", err);
-      toast.error("Failed to generate share link.");
+      toast.error("Failed to generate secure share link.");
+    } finally {
+      setIsSharing(false);
     }
   };
 
@@ -197,10 +198,16 @@ function ReportContent({ params }: PageProps) {
             <Button 
               variant="outline" 
               size="sm" 
-              className="border-[#333] hover:bg-[#111]"
+              className="border-[#333] bg-[#0a0a0a] text-white hover:bg-emerald-500/10 hover:border-emerald-500/50 hover:text-emerald-500 transition-all group"
               onClick={handleShare}
+              disabled={isSharing}
             >
-              <Share2 className="mr-2 h-4 w-4" /> Share
+              {isSharing ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin text-emerald-500" />
+              ) : (
+                <Share2 className="mr-2 h-4 w-4 transition-transform group-hover:scale-110" />
+              )}
+              Share
             </Button>
             {isFreeScan ? (
               <UpgradeButton scanId={report.scan_id || Number(scan_id)} className="bg-emerald-500 font-bold hover:bg-emerald-400">
@@ -305,6 +312,16 @@ function ReportContent({ params }: PageProps) {
         </div>
       </main>
       
+      {shareData && (
+        <ShareReportDialog 
+          isOpen={isShareDialogOpen}
+          onOpenChange={setIsShareDialogOpen}
+          shareUrl={shareData.url}
+          expiresAt={shareData.expiresAt}
+          targetUrl={report.target_url}
+        />
+      )}
+
       <Toaster position="top-right" />
     </div>
   );

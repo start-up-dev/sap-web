@@ -87,9 +87,10 @@ function DashboardContent() {
       );
 
       const scanId = response.data.id;
+      const isPaid = response.data.is_paid;
 
-      // If it's a deep scan, we need to initiate payment immediately
-      if (isDeepScan) {
+      // If it's a deep scan AND not paid yet, we need to initiate payment immediately
+      if (isDeepScan && !isPaid) {
         toast.info("Initiating secure checkout...");
         const checkoutRes = await api.post("/v1/payments/checkout", 
           { 
@@ -106,7 +107,7 @@ function DashboardContent() {
         }
       }
 
-      toast.success("Scan initiated successfully.");
+      toast.success(isDeepScan ? "Deep Audit initiated." : "Quick Scan initiated.");
       router.push(`/scans/${scanId}`);
     } catch (error: unknown) {
       console.error("Error starting scan:", error);
