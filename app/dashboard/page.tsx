@@ -45,6 +45,25 @@ function DashboardContent() {
   const [isStartingScan, setIsStartingScan] = useState(false);
   const [url, setUrl] = useState(urlFromQuery || "");
   const [scanType, setScanType] = useState<"quick" | "deep">("quick");
+  const [urlError, setUrlError] = useState<string | null>(null);
+
+  const isValidUrl = (urlString: string) => {
+    try {
+      // Basic check for protocol and domain
+      const pattern = new RegExp(
+        '^(https?:\\/\\/)?' + // protocol
+        '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
+        '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
+        '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
+        '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
+        '(\\#[-a-z\\d_]*)?$', // fragment locator
+        'i'
+      );
+      return !!pattern.test(urlString);
+    } catch (e) {
+      return false;
+    }
+  };
 
   const fetchData = useCallback(async () => {
     // Wait for auth to be loaded and ensure the user is signed in
@@ -82,6 +101,15 @@ function DashboardContent() {
     if (e) e.preventDefault();
     if (!url || !isLoaded || !isSignedIn) return;
 
+    const trimmedUrl = url.trim();
+    
+    if (!isValidUrl(trimmedUrl)) {
+      setUrlError("Please enter a valid website or API URL (e.g., https://example.com)");
+      return;
+    }
+
+    setUrlError(null);
+
     try {
       setIsStartingScan(true);
       const token = await getToken({ template: 'safeship-jwt' });
@@ -95,7 +123,7 @@ function DashboardContent() {
 
       const response = await api.post("/v1/scans", 
         { 
-          target_url: url.trim(), 
+          target_url: trimmedUrl, 
           is_deep_scan: isDeepScan 
         },
         { headers: { Authorization: `Bearer ${token}` } }
@@ -204,8 +232,13 @@ function DashboardContent() {
               <Input
                 placeholder="https://your-app.com"
                 value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                className="pl-10 border-[#333] bg-black text-white h-12 focus:border-emerald-500/50 transition-colors"
+                onChange={(e) => {
+                  setUrl(e.target.value);
+                  if (urlError) setUrlError(null);
+                }}
+                className={`pl-10 border-[#333] bg-black text-white h-12 focus:border-emerald-500/50 transition-colors ${
+                  urlError ? "border-red-500/50 focus:border-red-500/50" : ""
+                }`}
               />
             </div>
             <Button 
@@ -221,6 +254,12 @@ function DashboardContent() {
                scanType === 'deep' ? "Start Deep Audit" : "Run Quick Scan"}
             </Button>
           </form>
+          
+          {urlError && (
+            <p className="mt-2 text-xs text-red-500 animate-in fade-in slide-in-from-top-1">
+              {urlError}
+            </p>
+          )}
           
           <div className="mt-4 flex flex-wrap gap-4 text-xs text-[#666]">
             {scanType === 'quick' ? (
