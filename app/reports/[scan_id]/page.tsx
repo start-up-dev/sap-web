@@ -8,7 +8,8 @@ import {
   AlertCircle,
   Loader2,
   Lock,
-  ArrowLeft
+  ArrowLeft,
+  Globe
 } from "lucide-react";
 import { useAuth, UserButton } from "@clerk/nextjs";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -284,6 +285,32 @@ function ReportContent({ params }: PageProps) {
             </div>
           </div>
         </div>
+
+        {/* Subdomains Section (New) */}
+        {report.subdomains && report.subdomains.length > 0 && (
+          <div className="mb-12 rounded-2xl border border-[#222] bg-[#0a0a0a] p-8 shadow-xl">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="h-10 w-10 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
+                <Globe className="h-5 w-5 text-blue-500" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold">Infrastructure Assets</h2>
+                <p className="text-xs text-[#666] uppercase tracking-widest font-bold">Discovered Subdomains</p>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+              {report.subdomains.map((subdomain, index) => (
+                <div key={index} className="flex items-center gap-2 p-3 rounded-lg bg-black border border-[#222] hover:border-blue-500/30 transition-colors group">
+                  <div className="h-1.5 w-1.5 rounded-full bg-blue-500/50 group-hover:animate-pulse" />
+                  <span className="text-sm font-mono text-[#999] group-hover:text-white transition-colors truncate">
+                    {subdomain}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Findings List */}
         <div className="space-y-6">

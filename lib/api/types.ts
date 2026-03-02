@@ -47,12 +47,17 @@ export interface ScanResponse {
   created_at: string;
   started_at: string;
   completed_at: string | null;
+  auth_header_name?: string | null;
+  auth_header_value?: string | null;
+  subdomains?: string[];
 }
 
 export interface ScanCreate {
   target_url: string;
   domain_id?: number;
   is_deep_scan: boolean;
+  auth_header_name?: string;
+  auth_header_value?: string;
 }
 
 export interface ScanStatusResponse {
@@ -90,8 +95,9 @@ export interface ReportResponse {
   findings: Finding[];
   generated_at: string;
   started_at: string;
-  completed_at: string;
+  completed_at: string | null;
   pdf_url?: string;
+  subdomains?: string[];
 }
 
 export interface CheckoutRequest {

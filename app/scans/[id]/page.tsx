@@ -12,7 +12,8 @@ import {
   Clock,
   Mail,
   Zap,
-  Activity
+  Activity,
+  Sparkles
 } from "lucide-react";
 import { useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
@@ -313,16 +314,26 @@ export default function ScanProgressPage({ params }: PageProps) {
                             </div>
                             <AnimatePresence mode="wait">
                               {(isCurrent || isCompleted) && (
-                                <motion.p 
+                                <motion.div 
                                   initial={{ height: 0, opacity: 0 }}
                                   animate={{ height: "auto", opacity: 1 }}
                                   exit={{ height: 0, opacity: 0 }}
-                                  className={`text-sm leading-relaxed transition-colors duration-500 ${
-                                    isCurrent ? "text-emerald-500/80" : "text-muted-foreground/60"
-                                  }`}
+                                  className="space-y-2"
                                 >
-                                  {isCurrent ? (status?.message || phase.description) : phase.description}
-                                </motion.p>
+                                  {isCurrent && status?.message && status.message !== phase.description && (
+                                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 w-fit">
+                                      <Sparkles className="h-3 w-3 text-emerald-500" />
+                                      <span className="text-[10px] font-black uppercase tracking-tighter text-emerald-500">AI Live Probe</span>
+                                    </div>
+                                  )}
+                                  <p 
+                                    className={`text-sm leading-relaxed transition-colors duration-500 ${
+                                      isCurrent ? "text-emerald-500/80" : "text-muted-foreground/60"
+                                    }`}
+                                  >
+                                    {isCurrent ? (status?.message || phase.description) : phase.description}
+                                  </p>
+                                </motion.div>
                               )}
                             </AnimatePresence>
                           </div>

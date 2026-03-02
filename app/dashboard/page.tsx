@@ -8,7 +8,11 @@ import {
   Loader2, 
   ArrowRight,
   ExternalLink,
-  Timer
+  Timer,
+  Settings2,
+  Lock,
+  ChevronDown,
+  ChevronUp
 } from "lucide-react";
 import { useAuth } from "@clerk/nextjs";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -46,6 +50,11 @@ function DashboardContent() {
   const [url, setUrl] = useState(urlFromQuery || "");
   const [scanType, setScanType] = useState<"quick" | "deep">("quick");
   const [urlError, setUrlError] = useState<string | null>(null);
+
+  // Advanced Auth Options
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [authHeaderName, setAuthHeaderName] = useState("Authorization");
+  const [authHeaderValue, setAuthHeaderValue] = useState("");
 
   const isValidUrl = (urlString: string) => {
     try {
@@ -124,7 +133,9 @@ function DashboardContent() {
       const response = await api.post("/v1/scans", 
         { 
           target_url: trimmedUrl, 
-          is_deep_scan: isDeepScan 
+          is_deep_scan: isDeepScan,
+          auth_header_name: authHeaderValue ? authHeaderName : undefined,
+          auth_header_value: authHeaderValue || undefined
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -226,33 +237,83 @@ function DashboardContent() {
             </Tabs>
           </div>
 
-          <form onSubmit={handleStartScan} className="flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#666]" />
-              <Input
-                placeholder="https://your-app.com"
-                value={url}
-                onChange={(e) => {
-                  setUrl(e.target.value);
-                  if (urlError) setUrlError(null);
-                }}
-                className={`pl-10 border-[#333] bg-black text-white h-12 focus:border-emerald-500/50 transition-colors ${
-                  urlError ? "border-red-500/50 focus:border-red-500/50" : ""
+          <form onSubmit={handleStartScan} className="flex flex-col gap-4">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#666]" />
+                <Input
+                  placeholder="https://your-app.com"
+                  value={url}
+                  onChange={(e) => {
+                    setUrl(e.target.value);
+                    if (urlError) setUrlError(null);
+                  }}
+                  className={`pl-10 border-[#333] bg-black text-white h-12 focus:border-emerald-500/50 transition-colors ${
+                    urlError ? "border-red-500/50 focus:border-red-500/50" : ""
+                  }`}
+                />
+              </div>
+              <Button 
+                type="submit"
+                disabled={isStartingScan || !url}
+                className={`font-bold h-12 px-8 transition-all duration-300 ${
+                  scanType === 'deep' 
+                    ? 'bg-emerald-500 hover:bg-emerald-400 text-white shadow-[0_0_20px_rgba(16,185,129,0.3)]' 
+                    : 'bg-white text-black hover:bg-gray-200'
                 }`}
-              />
+              >
+                {isStartingScan ? <Loader2 className="h-4 w-4 animate-spin" /> : 
+                 scanType === 'deep' ? "Start Deep Audit" : "Run Quick Scan"}
+              </Button>
             </div>
-            <Button 
-              type="submit"
-              disabled={isStartingScan || !url}
-              className={`font-bold h-12 px-8 transition-all duration-300 ${
-                scanType === 'deep' 
-                  ? 'bg-emerald-500 hover:bg-emerald-400 text-white shadow-[0_0_20px_rgba(16,185,129,0.3)]' 
-                  : 'bg-white text-black hover:bg-gray-200'
-              }`}
-            >
-              {isStartingScan ? <Loader2 className="h-4 w-4 animate-spin" /> : 
-               scanType === 'deep' ? "Start Deep Audit" : "Run Quick Scan"}
-            </Button>
+
+            {/* Advanced Options Toggle */}
+            <div>
+              <button
+                type="button"
+                onClick={() => setShowAdvanced(!showAdvanced)}
+                className="text-xs font-bold text-[#666] hover:text-white flex items-center gap-1.5 transition-colors group"
+              >
+                <Settings2 className="h-3.5 w-3.5 group-hover:rotate-90 transition-transform duration-300" />
+                Advanced: Authentication Headers
+                {showAdvanced ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+              </button>
+
+              {showAdvanced && (
+                <div className="mt-4 p-4 rounded-xl bg-black border border-[#222] grid gap-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                  <div className="grid sm:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-[#444] ml-1">Header Name</label>
+                      <select 
+                        value={authHeaderName}
+                        onChange={(e) => setAuthHeaderName(e.target.value)}
+                        className="w-full bg-[#111] border border-[#333] rounded-lg h-10 px-3 text-xs text-white focus:border-emerald-500/50 outline-none"
+                      >
+                        <option value="Authorization">Authorization</option>
+                        <option value="Cookie">Cookie</option>
+                        <option value="X-API-Key">X-API-Key</option>
+                      </select>
+                    </div>
+                    <div className="sm:col-span-2 space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-[#444] ml-1">Header Value (Token/Session)</label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#444]" />
+                        <Input 
+                          placeholder="Bearer eyJhbGci..."
+                          value={authHeaderValue}
+                          onChange={(e) => setAuthHeaderValue(e.target.value)}
+                          className="pl-9 bg-[#111] border border-[#333] h-10 text-xs text-white focus:border-emerald-500/50"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-[#666] italic leading-relaxed">
+                    Optional: Use this if your application requires an active session to reach internal pages or APIs. 
+                    ShipSafe workers will use this header for all authenticated probes.
+                  </p>
+                </div>
+              )}
+            </div>
           </form>
           
           {urlError && (
