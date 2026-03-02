@@ -1,51 +1,65 @@
-import Link from "next/link";
-import { ShieldCheck } from "lucide-react";
-import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
-import type { LandingContent } from "@/content/landing";
+"use client";
 
-export function Nav({ nav }: { nav: LandingContent["nav"] }) {
+import Link from "next/link";
+import { ShieldCheck, ChevronRight } from "lucide-react";
+import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import { motion } from "framer-motion";
+
+export function Nav({ nav }: { nav: {
+  readonly logo: string;
+  readonly links: readonly {
+    readonly label: string;
+    readonly href: string;
+  }[];
+  readonly cta: string;
+  readonly ctaHref: string;
+} }) {
   return (
     <header className="sticky top-0 z-50 border-b border-white/5 bg-black/60 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
         <Link
           href="/"
-          className="text-xl font-bold tracking-tight text-[var(--foreground)] flex items-center gap-2"
+          className="group flex items-center gap-2.5 text-xl font-black tracking-tighter text-white"
         >
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-linear-to-br from-[var(--accent)] to-emerald-700 shadow-[0_0_15px_rgba(16,185,129,0.5)]">
-            <ShieldCheck className="h-5 w-5 text-white" />
+          <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-white text-black transition-transform group-hover:scale-105 group-active:scale-95">
+            <ShieldCheck className="h-5 w-5 fill-current" />
+            <div className="absolute -inset-1 rounded-xl bg-white/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
           {nav.logo}
         </Link>
-        <nav className="hidden items-center gap-8 md:flex">
+        
+        <nav className="hidden items-center gap-10 md:flex">
           {nav.links.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="text-sm font-medium text-foreground/70 transition-colors hover:text-foreground"
+              className="text-[13px] font-bold uppercase tracking-widest text-white/50 transition-colors hover:text-white"
             >
               {link.label}
             </Link>
           ))}
         </nav>
-        <div className="flex items-center gap-4">
+
+        <div className="flex items-center gap-6">
           <SignedOut>
             <Link
               href="/sign-in"
-              className="text-sm font-medium text-foreground/70 hover:text-foreground mr-2"
+              className="text-[13px] font-bold uppercase tracking-widest text-white/50 hover:text-white transition-colors"
             >
               Log in
             </Link>
             <Link
               href="/sign-up"
-              className="rounded-full bg-accent px-5 py-2.5 text-sm font-bold text-accent-foreground transition-transform hover:scale-105 shadow-[0_0_15px_rgba(16,185,129,0.3)]"
+              className="group relative flex items-center gap-2 overflow-hidden rounded-full bg-white px-6 py-2.5 text-[13px] font-black uppercase tracking-widest text-black transition-all hover:bg-emerald-400 hover:shadow-[0_0_20px_rgba(16,185,129,0.4)]"
             >
-              {nav.cta}
+              <span className="relative z-10">{nav.cta}</span>
+              <ChevronRight className="relative z-10 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </Link>
           </SignedOut>
           <SignedIn>
             <Link
               href="/dashboard"
-              className="text-sm font-medium text-foreground/70 hover:text-foreground mr-2"
+              className="text-[13px] font-bold uppercase tracking-widest text-white/50 hover:text-white transition-colors"
             >
               Dashboard
             </Link>

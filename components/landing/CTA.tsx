@@ -1,12 +1,19 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Check } from "lucide-react";
+import { Check, ArrowRight, Shield } from "lucide-react";
 import { useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
-import type { LandingContent } from "@/content/landing";
 
-export function CTA({ cta }: { cta: LandingContent["cta"] }) {
+export function CTA({ cta }: { cta: {
+  readonly title: string;
+  readonly subline: string;
+  readonly points?: readonly string[];
+  readonly primaryCta: string;
+  readonly primaryCtaHref: string;
+  readonly secondaryCta: string;
+  readonly secondaryCtaHref: string;
+} }) {
   const { isSignedIn } = useAuth();
   const router = useRouter();
 
@@ -18,77 +25,81 @@ export function CTA({ cta }: { cta: LandingContent["cta"] }) {
     }
   };
 
-  const handleSecondaryClick = () => {
-    const pricingSection = document.getElementById("pricing");
-    if (pricingSection) {
-      pricingSection.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
   return (
-    <section id="cta" className="relative overflow-hidden bg-black px-4 py-24 sm:px-6 sm:py-40">
-      {/* Cool Grid Background */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_70%,transparent_100%)]"></div>
-      
-      {/* Glowing Orb */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-emerald-600/20 rounded-full blur-[120px] pointer-events-none" />
+    <section id="cta" className="relative overflow-hidden bg-[#030303] px-4 py-24 sm:px-6 sm:py-48">
+      {/* Immersive background effects */}
+      <div className="absolute inset-0 z-0">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[1400px] h-[800px] bg-emerald-500/[0.05] blur-[160px] rounded-full" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_0%,#000_100%)]" />
+      </div>
 
-      <div className="relative z-10 mx-auto max-w-3xl text-center">
+      <div className="relative z-10 mx-auto max-w-5xl text-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          className="mb-12 inline-flex h-20 w-20 items-center justify-center rounded-[24px] bg-emerald-500/10 text-emerald-500 ring-1 ring-emerald-500/20"
+        >
+          <Shield className="h-10 w-10" />
+        </motion.div>
+
         <motion.h2 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-5xl font-extrabold tracking-tight text-white sm:text-7xl"
+          className="text-5xl font-black tracking-tighter text-white sm:text-[100px] leading-[0.9]"
         >
           {cta.title}
         </motion.h2>
+        
         <motion.p 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.1 }}
-          className="mt-8 text-xl text-[#aaa] max-w-2xl mx-auto"
+          className="mt-12 text-xl font-bold text-white/40 max-w-2xl mx-auto"
         >
           {cta.subline}
         </motion.p>
         
-        {/* The new points section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.2 }}
-          className="mt-12 flex flex-col items-center justify-center space-y-4"
-        >
-           {cta.points.map((point, i) => (
-             <div key={i} className="flex items-center gap-3 text-lg font-medium text-[#ddd]">
-               <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-500">
-                 <Check className="h-4 w-4" />
-               </span>
-               {point}
-             </div>
-           ))}
-        </motion.div>
+        {cta.points && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            className="mt-16 flex flex-wrap items-center justify-center gap-x-12 gap-y-6"
+          >
+             {cta.points.map((point, i) => (
+               <div key={i} className="flex items-center gap-3 text-sm font-black uppercase tracking-widest text-white/20">
+                 <div className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-500">
+                   <Check className="h-3 w-3" />
+                 </div>
+                 {point}
+               </div>
+             ))}
+          </motion.div>
+        )}
 
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.3 }}
-          className="mt-12 flex flex-col items-center justify-center gap-4 sm:flex-row"
+          className="mt-20"
         >
           <button
             onClick={handlePrimaryClick}
-            className="inline-flex h-16 min-w-[220px] items-center justify-center rounded-xl bg-emerald-500 px-8 text-lg font-bold text-white transition-all hover:scale-105 hover:bg-emerald-400 shadow-[0_0_30px_rgba(16,185,129,0.3)]"
+            className="group relative inline-flex h-20 min-w-[320px] items-center justify-center overflow-hidden rounded-[24px] bg-white px-12 text-lg font-black uppercase tracking-widest text-black transition-all hover:bg-emerald-400 active:scale-[0.98]"
           >
-            {cta.primaryCta}
+            <span className="relative z-10">{cta.primaryCta}</span>
+            <ArrowRight className="relative z-10 ml-3 h-6 w-6 transition-transform group-hover:translate-x-1" />
+            <div className="absolute inset-0 -translate-x-full bg-emerald-500 transition-transform group-hover:translate-x-0" />
           </button>
-          <button
-            onClick={handleSecondaryClick}
-            className="inline-flex h-16 min-w-[220px] items-center justify-center rounded-xl border border-[#444] bg-[#111] px-8 text-lg font-bold text-white transition-colors hover:bg-[#222] hover:border-[#666]"
-          >
-            {cta.secondaryCta}
-          </button>
+          
+          <p className="mt-8 text-[11px] font-black uppercase tracking-[0.4em] text-white/10">
+            Secure your launch in 5 minutes
+          </p>
         </motion.div>
       </div>
     </section>
