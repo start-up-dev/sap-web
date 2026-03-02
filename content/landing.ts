@@ -181,6 +181,8 @@ export const landingContent = {
 
   footer: {
     copy: "ShipSafe",
+    company: "Make Real LLC",
+    companyUrl: "https://makereal.app",
     links: [
       { label: "Privacy", href: "/privacy" },
       { label: "Terms", href: "/terms" },
