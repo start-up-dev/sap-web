@@ -102,8 +102,8 @@ export function FindingCard({ finding, scanId, isDeepScan }: FindingCardProps) {
                 {config.label}
               </Badge>
               {finding.is_validated && (
-                <Badge className="bg-red-500/10 text-red-500 border-red-500/20 animate-pulse font-black tracking-tighter">
-                  BREACH VERIFIED
+                <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 font-black tracking-tighter flex items-center gap-1 shadow-[0_0_15px_rgba(16,185,129,0.1)]">
+                  <CheckCircle2 className="h-3 w-3" /> AI VALIDATED BREACH
                 </Badge>
               )}
               <span className="text-xs text-[#444] font-mono">ID: {finding.id}</span>
@@ -128,20 +128,50 @@ export function FindingCard({ finding, scanId, isDeepScan }: FindingCardProps) {
             transition={{ duration: 0.3, ease: "easeInOut" }}
           >
             <div className="px-6 pb-6 border-t border-[#222] pt-6 space-y-8">
+              {/* Proof of Breach: The Smoking Gun */}
+              {isDeepScan && finding.smoking_gun && (
+                <div className="bg-[#111] border-2 border-emerald-500/20 rounded-xl p-6 shadow-[0_0_50px_rgba(16,185,129,0.05)]">
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="text-sm font-black uppercase tracking-widest text-emerald-500 flex items-center gap-2">
+                      <Terminal className="h-4 w-4" /> Definitive Proof (Smoking Gun)
+                    </h4>
+                    <span className="text-[10px] bg-emerald-500 text-black px-2 py-0.5 rounded font-black">BREACH EVIDENCE</span>
+                  </div>
+                  <div className="rounded-lg bg-black p-4 font-mono text-xs text-emerald-400 overflow-x-auto border border-emerald-500/10">
+                    <pre className="whitespace-pre-wrap">{finding.smoking_gun}</pre>
+                  </div>
+                </div>
+              )}
+
               {/* PoC / Active Exploitation Section */}
               {isDeepScan ? (
-                (finding.exploit_steps || finding.evidence) && (
-                  <div className="bg-red-500/5 border border-red-500/10 rounded-xl p-6 space-y-6">
+                (finding.exploit_steps || finding.evidence || finding.reproduction_guide) && (
+                  <div className="bg-emerald-500/5 border border-emerald-500/10 rounded-xl p-6 space-y-6">
                     <div className="flex items-center justify-between">
-                      <h4 className="text-sm font-black uppercase tracking-widest text-red-500 flex items-center gap-2">
-                        <CheckCircle2 className="h-4 w-4" /> Active Exploitation (PoC)
+                      <h4 className="text-sm font-black uppercase tracking-widest text-emerald-500 flex items-center gap-2">
+                        <Bug className="h-4 w-4" /> Actionable Reproduction
                       </h4>
                       {finding.is_validated && (
-                        <span className="text-[10px] bg-red-500 text-white px-2 py-0.5 rounded font-bold">VERIFIED HACKABLE</span>
+                        <span className="text-[10px] bg-emerald-500/20 text-emerald-500 px-2 py-0.5 rounded font-bold border border-emerald-500/20 flex items-center gap-1">
+                          <CheckCircle2 className="h-3 w-3" /> VERIFIED HACKABLE
+                        </span>
                       )}
                     </div>
 
-                    {finding.exploit_steps && (
+                    {finding.reproduction_guide && (
+                      <div className="space-y-3">
+                        <h5 className="text-xs font-bold text-white/70 uppercase tracking-tight">Step-by-Step Reproduction</h5>
+                        <ol className="list-decimal list-inside space-y-2">
+                          {finding.reproduction_guide.split('\n').filter(step => step.trim()).map((step, i) => (
+                            <li key={i} className="text-sm text-[#999] leading-relaxed">
+                              {step.replace(/^\d+\.\s*/, '')}
+                            </li>
+                          ))}
+                        </ol>
+                      </div>
+                    )}
+
+                    {!finding.reproduction_guide && finding.exploit_steps && (
                       <div className="space-y-3">
                         <h5 className="text-xs font-bold text-white/70 uppercase tracking-tight">The Hacker&apos;s Path</h5>
                         <p className="text-sm text-[#999] leading-relaxed italic">
@@ -153,9 +183,9 @@ export function FindingCard({ finding, scanId, isDeepScan }: FindingCardProps) {
                     {finding.evidence && (
                       <div className="space-y-3">
                         <h5 className="text-xs font-bold text-white/70 uppercase tracking-tight flex items-center gap-2">
-                          <Terminal className="h-3 w-3" /> Exploit Evidence
+                          <Terminal className="h-3 w-3" /> Evidence Logs
                         </h5>
-                        <div className="rounded-lg bg-[#111] border border-[#333] p-4 font-mono text-xs text-[#10b981] overflow-x-auto shadow-inner">
+                        <div className="rounded-lg bg-[#111] border border-[#333] p-4 font-mono text-xs text-emerald-500/70 overflow-x-auto shadow-inner">
                           <pre className="whitespace-pre-wrap">{finding.evidence}</pre>
                         </div>
                       </div>

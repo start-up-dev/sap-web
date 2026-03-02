@@ -25,7 +25,7 @@ export const setApiAuthToken = (token: string | null) => {
 api.interceptors.request.use(
   (config) => {
     if (process.env.NODE_ENV === "development") {
-      const logArgs: any[] = [`[API Request] ${config.method?.toUpperCase()} ${config.url}`];
+      const logArgs: unknown[] = [`[API Request] ${config.method?.toUpperCase()} ${config.url}`];
       if (config.data) logArgs.push(config.data);
       console.log(...logArgs);
     }

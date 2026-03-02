@@ -81,9 +81,12 @@ export interface Finding {
   technical_proof?: string;
   remediation?: string;
   estimated_fix_time?: string;
-  is_validated?: boolean;
+  is_validated: boolean;
   exploit_steps?: string;
   evidence?: string;
+  // --- NEW FIELDS ---
+  smoking_gun?: string;
+  reproduction_guide?: string;
 }
 
 export interface ReportResponse {
@@ -98,6 +101,7 @@ export interface ReportResponse {
   completed_at: string | null;
   pdf_url?: string;
   subdomains?: string[];
+  raw_results?: Record<string, unknown>;
 }
 
 export interface CheckoutRequest {

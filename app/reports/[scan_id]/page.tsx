@@ -23,10 +23,11 @@ import { Toaster } from "@/components/ui/sonner";
 import { SecurityScoreRing } from "@/components/reports/SecurityScoreRing";
 import { FindingCard } from "@/components/reports/FindingCard";
 import { ShareReportDialog } from "@/components/reports/ShareReportDialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
 import { UpgradeButton } from "@/components/payment/UpgradeButton";
 import { formatDate, formatDuration } from "@/lib/utils";
-import { Timer } from "lucide-react";
+import { Timer, Code, Shield, FileJson, Info } from "lucide-react";
 
 interface PageProps {
   params: Promise<{ scan_id: string }>;
@@ -312,51 +313,107 @@ function ReportContent({ params }: PageProps) {
           </div>
         )}
 
-        {/* Findings List */}
-        <div className="space-y-6">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-2xl font-bold">Vulnerability Findings</h2>
-            <Badge variant="outline" className="border-[#222] text-[#666]">
-              Showing {report.findings.length} issues
+        {/* Main Content Tabs */}
+        <Tabs defaultValue="findings" className="space-y-8">
+          <div className="flex items-center justify-between border-b border-[#222] pb-1">
+            <TabsList className="bg-transparent border-none p-0 h-auto gap-8">
+              <TabsTrigger 
+                value="findings" 
+                className="bg-transparent border-none p-0 pb-4 rounded-none data-[state=active]:bg-transparent data-[state=active]:text-emerald-500 data-[state=active]:shadow-[0_2px_0_0_#10b981] text-lg font-bold transition-all"
+              >
+                <Shield className="mr-2 h-5 w-5" /> Vulnerability Findings
+              </TabsTrigger>
+              {report.raw_results && (
+                <TabsTrigger 
+                  value="raw" 
+                  className="bg-transparent border-none p-0 pb-4 rounded-none data-[state=active]:bg-transparent data-[state=active]:text-emerald-500 data-[state=active]:shadow-[0_2px_0_0_#10b981] text-lg font-bold transition-all"
+                >
+                  <Code className="mr-2 h-5 w-5" /> Developer Logs
+                </TabsTrigger>
+              )}
+            </TabsList>
+            
+            <Badge variant="outline" className="border-[#222] text-[#666] mb-4">
+              {report.findings.length} issues identified
             </Badge>
           </div>
 
-          {isFreeScan && (
-            <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-8 mb-10 flex flex-col lg:flex-row items-center justify-between gap-8 relative overflow-hidden">
-              {/* Glow effect */}
-              <div className="absolute -left-20 -top-20 w-64 h-64 bg-emerald-500/10 blur-[100px] rounded-full" />
-              
-              <div className="flex items-start gap-6 relative z-10">
-                <div className="mt-1 h-14 w-14 shrink-0 rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shadow-[0_0_20px_rgba(16,185,129,0.1)]">
-                  <Lock className="h-7 w-7 text-emerald-500" />
+          <TabsContent value="findings" className="space-y-6 mt-0 outline-none">
+            {isFreeScan && (
+              <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-8 mb-10 flex flex-col lg:flex-row items-center justify-between gap-8 relative overflow-hidden">
+                {/* Glow effect */}
+                <div className="absolute -left-20 -top-20 w-64 h-64 bg-emerald-500/10 blur-[100px] rounded-full" />
+                
+                <div className="flex items-start gap-6 relative z-10">
+                  <div className="mt-1 h-14 w-14 shrink-0 rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shadow-[0_0_20px_rgba(16,185,129,0.1)]">
+                    <Lock className="h-7 w-7 text-emerald-500" />
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="text-2xl font-bold text-white tracking-tight">Your Audit is Incomplete</h3>
+                    <p className="text-base text-[#999] max-w-2xl leading-relaxed">
+                      This was a <span className="text-white font-semibold italic">passive, surface-level scan</span>. While we&apos;ve identified potential entry points, our <span className="text-emerald-400 font-bold underline decoration-emerald-400/30 underline-offset-4">Deep Audit</span> performs active exploit-testing to confirm exactly how a hacker could breach your system. Don&apos;t leave your data to chance.
+                    </p>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <h3 className="text-2xl font-bold text-white tracking-tight">Your Audit is Incomplete</h3>
-                  <p className="text-base text-[#999] max-w-2xl leading-relaxed">
-                    This was a <span className="text-white font-semibold italic">passive, surface-level scan</span>. While we&apos;ve identified potential entry points, our <span className="text-emerald-400 font-bold underline decoration-emerald-400/30 underline-offset-4">Deep Audit</span> performs active exploit-testing to confirm exactly how a hacker could breach your system. Don&apos;t leave your data to chance.
-                  </p>
+                <UpgradeButton 
+                  scanId={report.scan_id || Number(scan_id)}
+                  className="bg-emerald-500 font-black text-black hover:bg-emerald-400 h-14 px-10 rounded-xl shadow-2xl shadow-emerald-500/40 transition-all hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
+                >
+                  Unlock Everything — $29
+                </UpgradeButton>
+              </div>
+            )}
+
+            <div className="grid gap-4">
+              {report.findings.map((finding) => (
+                <FindingCard 
+                  key={finding.id} 
+                  finding={finding} 
+                  scanId={Number(scan_id)} 
+                  isDeepScan={report.is_deep_scan}
+                />
+              ))}
+            </div>
+          </TabsContent>
+
+          {report.raw_results && (
+            <TabsContent value="raw" className="mt-0 outline-none">
+              <div className="rounded-2xl border border-[#222] bg-[#0a0a0a] overflow-hidden">
+                <div className="p-6 border-b border-[#222] bg-[#111]/50 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <FileJson className="h-5 w-5 text-emerald-500" />
+                    <div>
+                      <h3 className="font-bold">Raw Scan Data</h3>
+                      <p className="text-xs text-[#666] uppercase tracking-widest font-bold">Internal Tool Outputs</p>
+                    </div>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="border-[#333] text-xs h-8"
+                    onClick={() => {
+                      navigator.clipboard.writeText(JSON.stringify(report.raw_results, null, 2));
+                      toast.success("Copied to clipboard");
+                    }}
+                  >
+                    Copy JSON
+                  </Button>
+                </div>
+                <div className="p-6 overflow-x-auto max-h-[600px] overflow-y-auto custom-scrollbar">
+                  <pre className="text-xs font-mono text-emerald-500/80 leading-relaxed">
+                    {JSON.stringify(report.raw_results, null, 2)}
+                  </pre>
                 </div>
               </div>
-              <UpgradeButton 
-                scanId={report.scan_id || Number(scan_id)}
-                className="bg-emerald-500 font-black text-black hover:bg-emerald-400 h-14 px-10 rounded-xl shadow-2xl shadow-emerald-500/40 transition-all hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
-              >
-                Unlock Everything — $29
-              </UpgradeButton>
-            </div>
+              <div className="mt-6 p-4 rounded-xl bg-blue-500/5 border border-blue-500/10 flex items-start gap-3">
+                <Info className="h-5 w-5 text-blue-500 shrink-0 mt-0.5" />
+                <p className="text-sm text-[#999]">
+                  <strong className="text-white">Pro Tip:</strong> Copy this raw data into <span className="text-white font-bold">ChatGPT</span> or <span className="text-white font-bold">Claude</span> to get specialized help debugging these specific tool outputs.
+                </p>
+              </div>
+            </TabsContent>
           )}
-
-          <div className="grid gap-4">
-            {report.findings.map((finding) => (
-              <FindingCard 
-                key={finding.id} 
-                finding={finding} 
-                scanId={Number(scan_id)} 
-                isDeepScan={report.is_deep_scan}
-              />
-            ))}
-          </div>
-        </div>
+        </Tabs>
       </main>
       
       {shareData && (
