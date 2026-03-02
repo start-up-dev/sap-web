@@ -22,13 +22,23 @@ export function UpgradeButton({
   size = "default",
   variant = "default"
 }: UpgradeButtonProps) {
-  const { getToken } = useAuth();
+  const { getToken, isLoaded, isSignedIn } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleUpgrade = async () => {
+    if (!isLoaded || !isSignedIn) {
+      toast.error("Please wait for authentication to load.");
+      return;
+    }
+
     try {
       setIsLoading(true);
       const token = await getToken({ template: 'safeship-jwt' });
+      
+      if (!token) {
+        toast.error("Auth session expired. Please refresh the page.");
+        return;
+      }
       
       // Ensure scanId is a valid number
       const numericScanId = Number(scanId);

@@ -90,7 +90,7 @@ function getMappedPhaseId(backendPhase: string | undefined, backendStatus: strin
 
 export default function ScanProgressPage({ params }: PageProps) {
   const { id } = use(params);
-  const { getToken } = useAuth();
+  const { getToken, isLoaded, isSignedIn } = useAuth();
   const router = useRouter();
   const intervalRef = useRef<NodeJS.Timeout | undefined>(undefined);
   
@@ -100,8 +100,16 @@ export default function ScanProgressPage({ params }: PageProps) {
 
   useEffect(() => {
     const pollStatus = async () => {
+      if (!isLoaded || !isSignedIn) return;
+
       try {
         const token = await getToken({ template: 'safeship-jwt' });
+        
+        if (!token) {
+          console.warn("No token available for scan status polling");
+          return;
+        }
+
         const response = await api.get(`/v1/scans/${id}/status`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -131,13 +139,15 @@ export default function ScanProgressPage({ params }: PageProps) {
       }
     };
 
-    pollStatus();
-    intervalRef.current = setInterval(pollStatus, 3000);
+    if (isLoaded && isSignedIn) {
+      pollStatus();
+      intervalRef.current = setInterval(pollStatus, 3000);
+    }
 
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [id, getToken, router]);
+  }, [id, getToken, router, isLoaded, isSignedIn]);
 
   const displayPhaseLabel = PHASES[currentPhaseIndex]?.label || "Initializing...";
 

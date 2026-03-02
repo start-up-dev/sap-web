@@ -34,7 +34,7 @@ export function VerificationDialog({
   onOpenChange,
   onVerified,
 }: VerificationDialogProps) {
-  const { getToken } = useAuth();
+  const { getToken, isLoaded, isSignedIn } = useAuth();
   const [method, setMethod] = useState<VerificationMethod>("dns_txt");
   
   // Store verification data for each method to avoid redundant fetches
@@ -45,7 +45,7 @@ export function VerificationDialog({
   const [error, setError] = useState<string | null>(null);
 
   const fetchInstructions = useCallback(async (targetMethod: VerificationMethod) => {
-    if (!domain) return;
+    if (!domain || !isLoaded || !isSignedIn) return;
     
     // If already in cache, just switch
     if (cache[targetMethod]) {
@@ -57,6 +57,11 @@ export function VerificationDialog({
       setIsLoading(true);
       setError(null);
       const token = await getToken({ template: 'safeship-jwt' });
+      
+      if (!token) {
+        console.warn("No token available for domain verification fetch");
+        return;
+      }
       
       const response = await api.post(
         `/v1/domains/${domain.id}/verify/`,
@@ -75,21 +80,27 @@ export function VerificationDialog({
     } finally {
       setIsLoading(false);
     }
-  }, [domain, getToken, cache]);
+  }, [domain, getToken, cache, isLoaded, isSignedIn]);
 
   // Initial fetch when modal opens
   useEffect(() => {
-    if (isOpen && domain && !cache[method]) {
+    if (isOpen && domain && !cache[method] && isLoaded && isSignedIn) {
       fetchInstructions(method);
     }
-  }, [isOpen, domain, method, cache, fetchInstructions]);
+  }, [isOpen, domain, method, cache, fetchInstructions, isLoaded, isSignedIn]);
 
   const checkStatus = async () => {
-    if (!domain) return;
+    if (!domain || !isLoaded || !isSignedIn) return;
     
     try {
       setIsVerifying(true);
       const token = await getToken({ template: 'safeship-jwt' });
+      
+      if (!token) {
+        toast.error("Auth session expired. Please refresh.");
+        return;
+      }
+
       const response = await api.get(`/v1/domains/${domain.id}/verify/status/`, {
         headers: { Authorization: `Bearer ${token}` },
       });

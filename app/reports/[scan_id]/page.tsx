@@ -33,7 +33,7 @@ interface PageProps {
 
 function ReportContent({ params }: PageProps) {
   const { scan_id } = use(params);
-  const { getToken } = useAuth();
+  const { getToken, isLoaded, isSignedIn } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const paymentStatus = searchParams.get("payment");
@@ -46,9 +46,17 @@ function ReportContent({ params }: PageProps) {
   const [error, setError] = useState<{ status?: number; message: string } | null>(null);
 
   const fetchReport = useCallback(async () => {
+    if (!isLoaded || !isSignedIn) return;
+
     try {
       setError(null);
       const token = await getToken({ template: 'safeship-jwt' });
+      
+      if (!token) {
+        console.warn("No token available for report fetch");
+        return;
+      }
+
       const response = await api.get(`/v1/reports/${scan_id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -66,12 +74,17 @@ function ReportContent({ params }: PageProps) {
     } finally {
       setIsLoading(false);
     }
-  }, [scan_id, getToken]);
+  }, [scan_id, getToken, isLoaded, isSignedIn]);
 
   const handleShare = async () => {
+    if (!isLoaded || !isSignedIn) return;
+
     try {
       setIsSharing(true);
       const token = await getToken({ template: 'safeship-jwt' });
+      
+      if (!token) throw new Error("No token available");
+
       const response = await api.post<ShareResponse>(`/v1/reports/${scan_id}/share`, {}, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -90,9 +103,14 @@ function ReportContent({ params }: PageProps) {
   };
 
   const handleDownloadPDF = async () => {
+    if (!isLoaded || !isSignedIn) return;
+
     try {
       toast.info("Preparing PDF report...");
       const token = await getToken({ template: 'safeship-jwt' });
+      
+      if (!token) throw new Error("No token available");
+
       const response = await api.get<ReportDownloadResponse>(`/v1/reports/${scan_id}/download`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -110,8 +128,10 @@ function ReportContent({ params }: PageProps) {
   };
 
   useEffect(() => {
-    fetchReport();
-  }, [fetchReport]);
+    if (isLoaded && isSignedIn) {
+      fetchReport();
+    }
+  }, [fetchReport, isLoaded, isSignedIn]);
 
   useEffect(() => {
     if (paymentStatus === "success") {

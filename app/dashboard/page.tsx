@@ -35,7 +35,7 @@ import { AxiosError } from "axios";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 
 function DashboardContent() {
-  const { getToken } = useAuth();
+  const { getToken, isLoaded, isSignedIn } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const urlFromQuery = searchParams.get("url");
@@ -47,9 +47,17 @@ function DashboardContent() {
   const [scanType, setScanType] = useState<"quick" | "deep">("quick");
 
   const fetchData = useCallback(async () => {
+    // Wait for auth to be loaded and ensure the user is signed in
+    if (!isLoaded || !isSignedIn) return;
+
     try {
       setIsLoading(true);
       const token = await getToken({ template: 'safeship-jwt' });
+      
+      if (!token) {
+        console.warn("No token available for dashboard fetch. Clerk session might still be initializing.");
+        return;
+      }
       
       const response = await api.get("/v1/scans", { 
         headers: { Authorization: `Bearer ${token}` } 
@@ -62,19 +70,26 @@ function DashboardContent() {
     } finally {
       setIsLoading(false);
     }
-  }, [getToken]);
+  }, [getToken, isLoaded, isSignedIn]);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    if (isLoaded && isSignedIn) {
+      fetchData();
+    }
+  }, [fetchData, isLoaded, isSignedIn]);
 
   const handleStartScan = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!url) return;
+    if (!url || !isLoaded || !isSignedIn) return;
 
     try {
       setIsStartingScan(true);
       const token = await getToken({ template: 'safeship-jwt' });
+      
+      if (!token) {
+        toast.error("Auth session expired. Please refresh the page.");
+        return;
+      }
       
       const isDeepScan = scanType === "deep";
 
